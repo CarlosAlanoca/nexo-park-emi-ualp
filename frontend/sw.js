@@ -1,8 +1,8 @@
-const CACHE='parkia-v28-sin-comentarios';
+const CACHE='parkia-v29-nueve-casos-pdf';
 const ASSETS=[
   '/parqueos','/login','/sistema',
   '/css/base.css','/css/public.css','/css/app.css','/css/v15.css',
-  '/js/api.js','/js/auth.js','/js/app.js','/js/pages/parqueos.js','/js/pages/ocupacion.js',
+  '/js/api.js','/js/auth.js','/js/app.js','/js/theme.js','/js/pages/propietarios.js','/js/pages/agrupado.js','/js/pages/reportes.js','/js/pages/parqueos.js','/js/pages/ocupacion.js',
   '/assets/logo/parkia-logo.svg',
   '/assets/maps/emi_mapa_general_validado.png',
   '/assets/maps/emi_mapa_rectangulos_usuario_v27.png',

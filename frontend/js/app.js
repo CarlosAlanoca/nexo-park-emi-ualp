@@ -1,3 +1,4 @@
+import { initTheme } from './theme.js';
 import { api, sesion, tienePermiso } from './api.js';
 import { renderPanel } from './pages/panel.js';
 import { renderEstudiante, detenerConsultaEstudiante } from './pages/estudiante.js';
@@ -11,6 +12,8 @@ import { renderReportes } from './pages/reportes.js';
 import { renderUsuarios } from './pages/usuarios.js';
 import { renderAuditoria } from './pages/auditoria.js';
 import { renderRespaldos } from './pages/respaldos.js';
+import { renderPropietarios } from './pages/propietarios.js';
+import { renderAgrupado } from './pages/agrupado.js';
 
 const c = document.getElementById('content');
 const menu = document.getElementById('menu');
@@ -46,6 +49,7 @@ async function validarSesion() {
 }
 
 async function iniciarAplicacion() {
+  initTheme('themeToggle');
   const u = await validarSesion();
   if (!u) return;
 
@@ -53,20 +57,18 @@ async function iniciarAplicacion() {
   document.getElementById('userRole').textContent = u.nombreRol;
   document.getElementById('avatar').textContent = (u.nombreCompleto || 'U').trim().charAt(0).toUpperCase();
 
+  // Nueve módulos del modelo aprobado; no existen menús independientes fuera de estos casos de uso.
   const modulos = [
-    { id:'mi-parqueo', label:'Mi parqueo', icon:'P', perm:'estudiante.mi_parqueo', grupo:'ESTUDIANTE', render:()=>renderEstudiante(c) },
-    { id:'panel', label:'Panel principal', icon:'▦', perm:'panel.ver', grupo:'SUPERVISIÓN', render:()=>renderPanel(c,u) },
-    { id:'vehiculos', label:'Vehículos y autorizaciones', icon:'🚘', perm:'vehiculos.ver', grupo:'OPERACIÓN', render:()=>renderVehiculos(c) },
-    { id:'accesos', label:'Control de ingreso y salida', icon:'▣', perm:'acceso.ver', grupo:'OPERACIÓN', render:()=>renderAccesos(c) },
-    { id:'parqueos', label:'Zonas, plazas y cámaras', icon:'P', perm:'parqueo.ver', grupo:'INFRAESTRUCTURA', render:()=>renderParqueos(c) },
-    { id:'ocupacion', label:'Ocupación por visión IA', icon:'◉', perm:'ocupacion.ver', grupo:'INFRAESTRUCTURA', render:()=>renderOcupacion(c) },
-    { id:'alertas', label:'Alertas', icon:'⚠', perm:'alertas.ver', grupo:'SUPERVISIÓN', render:()=>renderAlertas(c) },
-    { id:'historial', label:'Historial', icon:'⌚', perm:'historial.ver', grupo:'SUPERVISIÓN', render:()=>renderHistorial(c) },
-    { id:'reportes', label:'Reportes', icon:'▥', perm:'reportes.generar', grupo:'SUPERVISIÓN', render:()=>renderReportes(c) },
-    { id:'usuarios', label:'Usuarios y roles', icon:'♙', perm:'usuarios.gestionar', grupo:'ADMINISTRACIÓN', render:()=>renderUsuarios(c) },
-    { id:'auditoria', label:'Auditoría', icon:'✓', perm:'auditoria.ver', grupo:'ADMINISTRACIÓN', render:()=>renderAuditoria(c) },
-    { id:'respaldos', label:'Respaldos', icon:'↻', perm:'respaldos.gestionar', grupo:'ADMINISTRACIÓN', render:()=>renderRespaldos(c) }
-  ].filter(m => u.rol === 'ESTUDIANTE' ? m.id === 'mi-parqueo' : m.id === 'mi-parqueo' ? Boolean(u.zonaAsignadaId) && (tienePermiso('estudiante.mi_parqueo') || tienePermiso('parqueo.ver')) : tienePermiso(m.perm));
+    { id:'usuarios', label:'Gestión de usuarios', icon:'♙', grupo:'GESTIÓN INSTITUCIONAL', perm:'usuarios.gestionar', render:()=>renderUsuarios(c) },
+    { id:'reportes', label:'Informes y reportes', icon:'▥', grupo:'GESTIÓN INSTITUCIONAL', perm:'reportes.generar', render:()=>renderReportes(c) },
+    { id:'propietarios', label:'Registro de propietarios', icon:'♧', grupo:'GESTIÓN INSTITUCIONAL', perm:'propietarios.ver', render:()=>renderPropietarios(c) },
+    { id:'vehiculos', label:'Registro de vehículos', icon:'🚘', grupo:'OPERACIÓN', perm:'vehiculos.ver', render:()=>renderVehiculos(c) },
+    { id:'lugares', label:'Gestión de lugares / clasificación', icon:'▦', grupo:'OPERACIÓN', perm:['panel.ver','parqueo.ver','ocupacion.ver'], render:()=>renderAgrupado(c,[{nombre:'Panel de supervisión',perm:'panel.ver',render:()=>renderPanel(c,u)},{nombre:'Parqueos y plazas',perm:'parqueo.ver',render:()=>renderParqueos(c)},{nombre:'Visión artificial',perm:'ocupacion.ver',render:()=>renderOcupacion(c)}]) },
+    { id:'control', label:'Control de ingreso y salida', icon:'◉', grupo:'OPERACIÓN', perm:['acceso.ver','historial.ver'], render:()=>renderAgrupado(c,[{nombre:'Ingresos y salidas',perm:'acceso.ver',render:()=>renderAccesos(c)},{nombre:'Historial y trazabilidad',perm:'historial.ver',render:()=>renderHistorial(c)}]) },
+    { id:'alertas', label:'Alertas y notificaciones', icon:'⚠', grupo:'OPERACIÓN', perm:'alertas.ver', render:()=>renderAlertas(c) },
+    { id:'auditoria', label:'Auditoría y control', icon:'✓', grupo:'CONTROL Y ACCESO', perm:['auditoria.ver','respaldos.gestionar'], render:()=>renderAgrupado(c,[{nombre:'Auditoría',perm:'auditoria.ver',render:()=>renderAuditoria(c)},{nombre:'Respaldo y continuidad',perm:'respaldos.gestionar',render:()=>renderRespaldos(c)}]) },
+    { id:'movil', label:'Componente móvil', icon:'▣', grupo:'CONTROL Y ACCESO', perm:'estudiante.mi_parqueo', render:()=>renderEstudiante(c) }
+  ].filter(m => (Array.isArray(m.perm)?m.perm.some(p=>tienePermiso(p)):tienePermiso(m.perm)) && (m.id!=='movil'||u.rol==='PROPIETARIO'));
 
   for (const g of [...new Set(modulos.map(m => m.grupo))]) {
     const h = document.createElement('h4');
@@ -105,7 +107,7 @@ async function iniciarAplicacion() {
   }
 
   const wanted = location.hash.slice(1);
-  const defaultId = u.rol === 'ESTUDIANTE' ? 'mi-parqueo' : 'panel';
+  const defaultId = u.rol === 'PROPIETARIO' ? 'movil' : (modulos.find(m=>m.id==='lugares')?'lugares':modulos[0]?.id);
   const initial = modulos.find(m => m.id === wanted) || modulos.find(m=>m.id===defaultId) || modulos[0];
   if (initial) navegar(initial);
   else c.innerHTML = '<div class="card panel"><h3>Sin módulos asignados</h3><p>Contacte al administrador del sistema.</p></div>';

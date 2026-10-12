@@ -1,0 +1,53 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecase { BackgroundColor #F5F9FD BorderColor #0C4779 ArrowColor #557A9A }
+actor "Administrador" as Admin
+actor "Operadores" as Ops
+actor "Soporte" as Soporte
+actor "Recursos Humanos" as RRHH
+actor "Director" as Director
+actor "Guardia" as Guardia
+actor "Propietario\n(estudiante / docente)" as Prop
+rectangle "PARKIA EMI UALP" {
+ usecase "Gestión de usuarios" as U
+ usecase "Informes y reportes" as R
+ usecase "Registro de propietarios" as P
+ usecase "Registro de vehículos" as V
+ usecase "Gestión de lugares / clasificación" as L
+ usecase "Control de ingreso y salida" as C
+ usecase "Alertas y notificaciones" as A
+ usecase "Auditoría y control" as AU
+ usecase "Componente móvil" as M
+}
+Admin -- U
+Admin -- R
+Admin -- P
+Admin -- V
+Admin -- L
+Admin -- C
+Admin -- A
+Admin -- AU
+Ops -- P
+Ops -- V
+Ops -- L
+Ops -- C
+Ops -- R
+Ops -- A
+Soporte -- U
+Soporte -- L
+Soporte -- AU
+RRHH -- U
+RRHH -- P
+RRHH -- R
+Director -- R
+Director -- L
+Director -- A
+Director -- AU
+Guardia -- L
+Guardia -- C
+Guardia -- A
+Guardia -- R
+Prop -- M
+@enduml

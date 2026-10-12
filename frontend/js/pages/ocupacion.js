@@ -45,5 +45,5 @@ export async function renderOcupacion(c){
   $('vision-plaza').onchange=updateZoneInfo;
   $('vision-calibrar').onclick=async()=>{const btn=$('vision-calibrar');btn.disabled=true;try{const imagenLibre=await encode($('vision-libre').files[0]),imagenOcupada=await encode($('vision-ocupada').files[0]);const r=await api('/ocupacion/calibrar',{method:'POST',body:{plazaId:id(),roi:roi(),imagenLibre,imagenOcupada}});notice(r.message);await refresh()}catch(e){notice(e.message,true)}finally{btn.disabled=false}};
   $('vision-procesar').onclick=async()=>{const btn=$('vision-procesar');btn.disabled=true;try{const imagen=await encode($('vision-actual').files[0]);const r=await api('/ocupacion/procesar',{method:'POST',body:{plazaId:id(),imagen}});notice(`${r.plaza}: ${r.estado}. ${r.mensaje} Confianza: ${r.confianza??'no determinada'}%`);await refresh()}catch(e){notice(e.message,true)}finally{btn.disabled=false}};
-  await refresh(); const timer=setInterval(()=>{ if(!c.isConnected || c.dataset.moduloActivo!=='ocupacion'){clearInterval(timer); return} refresh() },12000);
+  await refresh(); const timer=setInterval(()=>{ if(!c.isConnected || !c.isConnected){clearInterval(timer); return} refresh() },12000);
 }

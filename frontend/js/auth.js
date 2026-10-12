@@ -1,3 +1,4 @@
+import { initTheme } from './theme.js';
 import { api, sesion } from './api.js';
 
 let captchaToken = '';
@@ -141,6 +142,7 @@ form.addEventListener('submit', async e => {
 });
 
 async function iniciar() {
+  initTheme('themeToggleLogin');
   if (sesion.token) {
     try {
       const data = await api('/autenticacion/yo');

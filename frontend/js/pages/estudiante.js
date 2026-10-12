@@ -39,14 +39,14 @@ export async function renderEstudiante(c){
   async function cargar(){
     if(!activo||trabajando||document.hidden)return;
     trabajando=true;
-    try {const data=await api('/estudiante/mi-parqueo');if(activo&&c.isConnected&&c.dataset.moduloActivo==='mi-parqueo')contenido(c,data);}
-    catch(e){if(activo&&c.isConnected&&c.dataset.moduloActivo==='mi-parqueo'){
+    try {const data=await api('/estudiante/mi-parqueo');if(activo&&c.isConnected&&c.dataset.moduloActivo==='movil')contenido(c,data);}
+    catch(e){if(activo&&c.isConnected&&c.dataset.moduloActivo==='movil'){
       // No comunicar 'espacios disponibles' ante pérdida de conexión.
       const error=elemento('div','card panel student-error');error.append(elemento('h2','','Disponibilidad no confirmada'),elemento('p','',e.message||'No se pudo actualizar la información.'));
       c.replaceChildren(error);
     }}finally{trabajando=false;}
   }
-  await cargar();if(!activo || c.dataset.moduloActivo!=='mi-parqueo')return;timer=setInterval(cargar,5000);
+  await cargar();if(!activo || c.dataset.moduloActivo!=='movil')return;timer=setInterval(cargar,5000);
   const onVisible=()=>{if(!document.hidden)cargar();};document.addEventListener('visibilitychange',onVisible);
   teardown=()=>{activo=false;clearInterval(timer);document.removeEventListener('visibilitychange',onVisible);};
 }

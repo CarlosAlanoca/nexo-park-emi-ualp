@@ -1,0 +1,58 @@
+{
+  "version": "29.0.0",
+  "modulos": [
+    "Gestión de usuarios",
+    "Informes y reportes",
+    "Registro de propietarios",
+    "Registro de vehículos",
+    "Gestión de lugares / clasificación",
+    "Control de ingreso y salida",
+    "Alertas y notificaciones",
+    "Auditoría y control",
+    "Componente móvil"
+  ],
+  "actores": [
+    "Administrador",
+    "Operadores",
+    "Soporte",
+    "Recursos Humanos",
+    "Director",
+    "Guardia",
+    "Propietario"
+  ],
+  "propietario": [
+    "ESTUDIANTE",
+    "DOCENTE"
+  ],
+  "integraciones": {
+    "Gestión de lugares / clasificación": [
+      "Panel de supervisión",
+      "Parqueos y plazas",
+      "Visión artificial"
+    ],
+    "Control de ingreso y salida": [
+      "Ingreso y salida",
+      "Historial y trazabilidad"
+    ],
+    "Auditoría y control": [
+      "Auditoría",
+      "Respaldo y continuidad"
+    ],
+    "Informes y reportes": [
+      "Indicadores",
+      "Previsualización PDF",
+      "Descarga PDF",
+      "CSV"
+    ]
+  },
+  "pdf": {
+    "endpoint": "GET /api/reportes/pdf",
+    "autenticacion": "Bearer",
+    "previsualizacion": "iframe protegido en navegador",
+    "descarga": "solo después de previsualizar",
+    "identidad": [
+      "Logo PARKIA encabezado",
+      "Logo EMI marca de agua esquina inferior derecha"
+    ]
+  }
+}

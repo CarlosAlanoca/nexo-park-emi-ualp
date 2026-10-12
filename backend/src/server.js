@@ -8,7 +8,6 @@ async function iniciar() {
   try {
     await query('SELECT 1');
     await asegurarEstructuraAutenticacion();
-    await asegurarUsuariosDemo();
     await query(`ALTER TABLE vehiculos ADD COLUMN IF NOT EXISTS propietario_usuario_id UUID REFERENCES usuarios(id), ADD COLUMN IF NOT EXISTS foto_vehiculo TEXT, ADD COLUMN IF NOT EXISTS foto_placa TEXT`);
     await query(`ALTER TABLE eventos_acceso ADD COLUMN IF NOT EXISTS evidencia_tipo VARCHAR(30) DEFAULT 'SIN_EVIDENCIA'`);
     await query(`ALTER TABLE alertas ADD COLUMN IF NOT EXISTS clave_incidente VARCHAR(160)`);
@@ -17,6 +16,14 @@ async function iniciar() {
     await query(await fs.readFile(new URL('../sql/05_auditoria_v15.sql', import.meta.url),'utf8'));
     await query(await fs.readFile(new URL('../sql/06_mapeo_real_v17.sql', import.meta.url),'utf8'));
     await query(await fs.readFile(new URL('../sql/07_mapa_rectangulos_v26.sql', import.meta.url),'utf8'));
+    await query(`CREATE TABLE IF NOT EXISTS migraciones_parkia(version VARCHAR(30) PRIMARY KEY,aplicada_en TIMESTAMPTZ DEFAULT NOW())`);
+    const aplicada = await query(`SELECT 1 FROM migraciones_parkia WHERE version='V29_CASOS_USO'`);
+    if(!aplicada.rowCount){
+      await query(await fs.readFile(new URL('../sql/08_casos_uso_v29.sql', import.meta.url),'utf8'));
+      await query(`INSERT INTO migraciones_parkia(version) VALUES ('V29_CASOS_USO') ON CONFLICT DO NOTHING`);
+    }
+    await asegurarUsuariosDemo();
+    await query(`INSERT INTO perfiles_propietarios(usuario_id,tipo) SELECT u.id,CASE WHEN UPPER(COALESCE(u.area_institucional,'')) LIKE '%DOCENTE%' THEN 'DOCENTE' ELSE 'ESTUDIANTE' END FROM usuarios u JOIN roles r ON r.id=u.rol_id WHERE r.codigo='PROPIETARIO' ON CONFLICT(usuario_id) DO NOTHING`);
     iniciarVerificadorAlertas();
     app.listen(env.port, () => console.log(`PARKIA EMI UALP disponible en http://localhost:${env.port}`));
   } catch (error) {

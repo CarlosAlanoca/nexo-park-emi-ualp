@@ -86,3 +86,7 @@ Lea `docs/REQUISITOS_MODULO_12_V15.md`, `docs/PLAN_RESTAURACION_Y_PRUEBAS_V15.md
 - Se eliminaron los comentarios y textos explicativos dentro del sistema.
 - El mapa usa la misma imagen con rectángulos ya dibujados.
 - El estado se aplica como realce suave, sin crear otros targets visuales.
+
+
+## PARKIA V29 - Diagrama de casos de uso consolidado
+Se ajustó la plataforma a nueve módulos visibles y siete perfiles institucionales. Se agregó el registro específico de propietarios (estudiantes y docentes), la vista previa autenticada de PDFs y la descarga formal en A4 con identidades EMI/PARKIA. Consulte `docs/ARQUITECTURA_V29.md`, `docs/MATRIZ_CASOS_USO_V29.json` y `docs/ACTUALIZAR_GITHUB_V29.md`.

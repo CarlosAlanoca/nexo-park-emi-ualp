@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const app=fs.readFileSync(new URL('../frontend/js/app.js',import.meta.url),'utf8');
+const mig=fs.readFileSync(new URL('../backend/sql/08_casos_uso_v29.sql',import.meta.url),'utf8');
+const report=fs.readFileSync(new URL('../backend/src/modules/reportes/reportes.routes.js',import.meta.url),'utf8');
+const modules=[...app.matchAll(/\{ id:'([^']+)', label:'([^']+)'/g)].map(m=>m[2]);
+assert.deepEqual(modules,['Gestión de usuarios','Informes y reportes','Registro de propietarios','Registro de vehículos','Gestión de lugares / clasificación','Control de ingreso y salida','Alertas y notificaciones','Auditoría y control','Componente móvil']);
+for(const role of ['ADMIN','OPERADORES','SOPORTE','RRHH','DIRECTOR','GUARDIA','PROPIETARIO'])assert.ok(mig.includes(`'${role}'`));
+assert.ok(mig.includes('perfiles_propietarios'));
+assert.ok(report.includes("reportesRouter.get('/pdf'"));
+assert.ok(fs.existsSync(new URL('../backend/src/utils/pdf-report.js',import.meta.url)));
+assert.ok(fs.existsSync(new URL('../frontend/js/pages/propietarios.js',import.meta.url)));
+console.log('PARKIA V29: 9 módulos y 7 actores verificados; rutas y archivos PDF presentes.');

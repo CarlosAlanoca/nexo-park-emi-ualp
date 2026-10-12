@@ -6,7 +6,7 @@ import { asyncHandler } from '../../utils/asyncHandler.js';
 export const estudianteRouter = Router();
 estudianteRouter.use(authenticate, (req, res, next) => {
   // El rol debe ser ESTUDIANTE además de poseer el permiso pertinente.
-  if (req.user.rol !== 'ESTUDIANTE' && !req.user.zonaAsignadaId) return res.status(403).json({message:'No tiene una zona asignada para esta consulta. Use el panel de supervisión.'});
+  if (req.user.rol !== 'PROPIETARIO' || !req.user.zonaAsignadaId) return res.status(403).json({message:'No tiene una zona asignada para esta consulta. Use el panel de supervisión.'});
   next();
 }, requirePermission('estudiante.mi_parqueo','parqueo.ver'));
 
@@ -16,7 +16,7 @@ estudianteRouter.get('/mi-parqueo', asyncHandler(async (req, res) => {
     SELECT z.id,z.codigo,z.nombre,z.referencia_ubicacion
     FROM usuarios u
     JOIN zonas_parqueo z ON z.id = u.zona_asignada_id
-    WHERE u.id=$1 AND u.estado='ACTIVO' AND (u.rol_id=(SELECT id FROM roles WHERE codigo='ESTUDIANTE') AND z.codigo='Z-EST-TRASERA' OR u.rol_id<>(SELECT id FROM roles WHERE codigo='ESTUDIANTE'))
+    WHERE u.id=$1 AND u.estado='ACTIVO' AND u.rol_id=(SELECT id FROM roles WHERE codigo='PROPIETARIO')
     LIMIT 1`, [req.user.sub]);
   res.set('Cache-Control','no-store, private');
   if (!zonas.rowCount) return res.status(403).json({message:'La cuenta no tiene una zona habilitada para consulta. Consulte con administración.'});

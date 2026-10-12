@@ -209,3 +209,36 @@
 .map-rect.ocupada{background:rgba(239,68,68,.18) !important}
 .map-rect.fuera-servicio{background:rgba(249,115,22,.20) !important}
 .map-rect.sin-datos{background:rgba(148,163,184,.12) !important}
+
+/* PARKIA V29 - Casos de uso institucionales y reportes */
+.case-tabs{display:flex;flex-wrap:wrap;gap:8px;padding:7px;background:#edf4fa;border:1px solid #d8e5f0;border-radius:16px;margin-bottom:18px}
+.case-tab{font:inherit;cursor:pointer;background:transparent;border:1px solid transparent;border-radius:12px;padding:11px 16px;color:#31546f;font-weight:750;transition:background .2s ease,color .2s ease}
+.case-tab.active{background:#0c4779;color:white;box-shadow:0 5px 15px rgba(12,71,121,.18)}
+.case-tab:hover:not(.active){background:#ddebf7}
+.pdf-preview-area{margin-top:18px}.pdf-preview-header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}.pdf-preview-header h2{margin:0 auto 0 0}
+.pdf-preview-card{padding:20px}.pdf-frame{display:block;width:100%;height:min(78vh,900px);min-height:550px;border:1px solid #cfdeec;border-radius:12px;background:#f7faff}
+.owner-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:15px;color:#58758b}.owner-toolbar input{flex:1;min-width:220px;max-width:430px}
+.owner-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}.owner-fields label{display:flex;flex-direction:column;gap:7px;font-weight:700;color:#314b61}
+.owner-fields input,.owner-fields select{width:100%;min-height:41px;padding:8px 10px;border:1px solid #cbd9e6;border-radius:10px;background:white}
+.owner-actions{display:flex;gap:10px;margin-top:18px}
+@media(max-width:700px){.pdf-preview-card{padding:10px}.pdf-frame{min-height:410px;height:70vh}.case-tabs{display:grid;grid-template-columns:1fr 1fr}.case-tab{padding:10px 7px}}
+body[data-theme=dark] .case-tabs{background:#132d45;border-color:#27465e}body[data-theme=dark] .case-tab{color:#d9e7f8}body[data-theme=dark] .case-tab.active{background:#2169a2}
+
+/* Tema institucional V29 */
+.theme-toggle{font-size:.84rem;white-space:nowrap;transition:background .2s ease;min-height:38px}.login-theme{position:fixed;right:22px;top:20px;z-index:40;box-shadow:0 5px 18px rgba(14,46,87,.14)}
+body[data-theme=dark]{background:#071828!important;color:#e5f0fb!important;--ink:#e5f0fb;--muted:#a4bad0;--navy:#72c1f5;--line:#29435d;--sky:#132d45}
+body[data-theme=dark].app-shell,body[data-theme=dark] .main,body[data-theme=dark] .app-body{background:#071828!important}
+body[data-theme=dark] .app-header{background:#0c2138!important;border-color:#25425f!important}
+body[data-theme=dark] .sidebar{background:#0b2a48!important}
+body[data-theme=dark] .card,body[data-theme=dark] .panel,body[data-theme=dark] .sector-card,body[data-theme=dark] .clean-card,body[data-theme=dark] .report-kpi,body[data-theme=dark] .login-card,body[data-theme=dark] .login-panel{background:#102a43!important;color:#e5f0fb!important;border-color:#2d4863!important}
+body[data-theme=dark] .table-wrap,body[data-theme=dark] .report-table-wrap,body[data-theme=dark] .pdf-preview-card{background:#102a43!important;border-color:#2d4863!important}
+body[data-theme=dark] th,body[data-theme=dark] .report-table th{background:#173855!important;color:#f1f7fe!important}
+body[data-theme=dark] td,body[data-theme=dark] .report-table td{background:#102a43!important;color:#e5f0fb!important;border-color:#254863!important}
+body[data-theme=dark] .page-head h1,body[data-theme=dark] h2,body[data-theme=dark] h3,body[data-theme=dark] .sector-headline h3,body[data-theme=dark] .report-kpi strong{color:#e6f3ff!important}
+body[data-theme=dark] .page-head p,body[data-theme=dark] .muted,body[data-theme=dark] .owner-toolbar,body[data-theme=dark] .sector-headline p{color:#a9bfd2!important}
+body[data-theme=dark] input,body[data-theme=dark] select,body[data-theme=dark] textarea{background:#12324d!important;color:#f2f8ff!important;border-color:#34546e!important}
+body[data-theme=dark] .btn-outline,body[data-theme=dark] .case-tabs{background:#173650!important;color:#e6f3ff!important;border-color:#35536b!important}
+body[data-theme=dark] .btn-outline:hover{background:#234c6c!important}body[data-theme=dark] .case-tab.active{background:#146aa4!important;color:#fff!important}
+body[data-theme=dark] .student-stat,body[data-theme=dark] .kpi{background:#112d46!important;border-color:#34546e!important}body[data-theme=dark] .login-visual{background:#09243a!important}
+body[data-theme=dark] .slot-chip{border-color:#4a657c!important}body[data-theme=dark] .student-note{color:#a6bdd3!important}
+@media(max-width:740px){.theme-toggle:not(.login-theme){font-size:0;padding:.4rem .5rem}.theme-toggle:not(.login-theme)::before{content:'☾';font-size:1.1rem}}
