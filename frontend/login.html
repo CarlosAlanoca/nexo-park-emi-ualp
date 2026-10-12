@@ -3,37 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Ingreso PARKIA UALP</title>
-  <meta name="description" content="Acceso institucional seguro al sistema PARKIA EMI UALP.">
+  <title>Ingreso NEXO PARK · EMI UALP</title>
+  <meta name="description" content="Acceso institucional seguro al sistema NEXO PARK EMI UALP.">
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/css/app.css">
   <link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/css/nexo.css">
 </head>
 <body>
 <button type="button" id="themeToggleLogin" class="btn btn-outline theme-toggle login-theme" aria-label="Cambiar tema">☾ Modo noche</button>
 <main class="login-shell">
   <section class="login-visual" aria-label="Presentación de acceso institucional">
     <div class="login-visual-content">
-      <div class="eyebrow">PÁGINA WEB INSTITUCIONAL · SISTEMA DE PARQUEOS</div>
-      <h1>Acceso seguro por perfil institucional</h1>
-      <p>Ingrese con su usuario, contraseña y CAPTCHA. Al validar el acceso, el sistema identifica automáticamente su perfil y muestra únicamente las funciones autorizadas.</p>
-      <div class="login-benefits" aria-label="Características de seguridad">
-        <span>✓ Acceso por usuario y contraseña</span>
-        <span>✓ Verificación CAPTCHA</span>
-        <span>✓ Bloqueo temporal ante intentos fallidos</span>
-        <span>✓ Compatible con computadora, tablet y celular</span>
-      </div>
+      <div class="eyebrow">NEXO PARK · EMI UALP</div><h1>Bienvenido a<br>una movilidad<br><em>más conectada.</em></h1><p>Tu punto de encuentro con los espacios del campus. Ingresa y continúa desde donde lo necesitas.</p><div class="login-benefits"><span>01 &nbsp; Disponibilidad de tu zona asignada</span><span>02 &nbsp; Herramientas según tus funciones</span><span>03 &nbsp; Una experiencia en todos tus dispositivos</span></div>
     </div>
   </section>
 
   <section class="login-panel">
     <div class="card login-card">
-      <a href="/parqueos" class="login-logo-link" aria-label="Volver a PARKIA">
-        <img class="logo" src="/assets/logo/parkia-logo.svg" alt="PARKIA UALP">
+      <a href="/parqueos" class="login-logo-link" aria-label="Volver a NEXO PARK">
+        <img class="logo" src="/assets/logo/parkia-logo.svg" alt="NEXO PARK · EMI UALP">
       </a>
       <div class="login-heading">
-        <span class="badge">ACCESO INSTITUCIONAL</span>
-        <h2>Iniciar sesión</h2>
+        <span class="badge">TU ESPACIO DE TRABAJO</span>
+        <h2>Qué gusto verte.</h2>
         <p>Ingrese sus credenciales para continuar.</p>
       </div>
 
@@ -43,7 +36,7 @@
       <form id="loginForm" novalidate>
         <div class="field">
           <label for="username">USUARIO</label>
-          <input id="username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="60" required placeholder="Ej. operaciones">
+          <input id="username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="60" required placeholder="Tu nombre de usuario">
         </div>
 
         <div class="field" style="margin-top:.9rem">
@@ -67,15 +60,12 @@
         </div>
 
         <button class="btn btn-navy login-submit" id="loginButton" type="submit">
-          <span id="loginButtonText">INGRESAR AL SISTEMA</span>
+          <span id="loginButtonText">Ingresar a NEXO PARK</span>
           <span id="loginSpinner" class="login-spinner hidden" aria-hidden="true"></span>
         </button>
       </form>
 
-      <div class="login-note">
-        <b>Protección de acceso:</b> las credenciales se validan de forma segura, el CAPTCHA expira y la cuenta se bloquea temporalmente después de varios intentos fallidos.
-        <div class="login-links"><a href="/parqueos">← Volver a Parqueos</a><span>·</span><a href="/">Portal EMI</a></div>
-      </div>
+      <details class="login-help"><summary>¿Necesitas ayuda para ingresar?</summary><p>Solicita tu cuenta o el restablecimiento de tu contraseña al administrador. Si tu cuenta está bloqueada temporalmente, espera el tiempo indicado.</p></details><div class="login-note">Acceso exclusivo para cuentas habilitadas.<div class="login-links"><a href="/parqueos">← NEXO PARK</a><span>·</span><a href="/">Portal EMI</a></div></div>
     </div>
   </section>
 </main>

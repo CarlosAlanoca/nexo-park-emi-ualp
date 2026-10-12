@@ -1,3 +1,7 @@
+-- Alias de compatibilidad V30
+-- NEXO PARK V30. Solo instalación NUEVA. No ejecutar sobre datos existentes.
+
+-- 01_schema.sql
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- PARKIA EMI UALP - Modelo físico PostgreSQL en castellano.
@@ -52,6 +56,23 @@ CREATE TABLE IF NOT EXISTS usuarios (
   actualizado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+
+CREATE INDEX IF NOT EXISTS ix_usuarios_nombre_usuario_ci ON usuarios(LOWER(nombre_usuario));
+CREATE INDEX IF NOT EXISTS ix_usuarios_bloqueado_hasta ON usuarios(bloqueado_hasta) WHERE bloqueado_hasta IS NOT NULL;
+
+CREATE TABLE IF NOT EXISTS sesiones_autenticacion (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  jti UUID UNIQUE NOT NULL,
+  creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  expira_en TIMESTAMPTZ NOT NULL,
+  revocado_en TIMESTAMPTZ,
+  direccion_ip VARCHAR(80),
+  agente_usuario VARCHAR(500)
+);
+CREATE INDEX IF NOT EXISTS ix_sesiones_auth_usuario ON sesiones_autenticacion(usuario_id);
+CREATE INDEX IF NOT EXISTS ix_sesiones_auth_validas ON sesiones_autenticacion(jti,usuario_id,expira_en) WHERE revocado_en IS NULL;
+
 CREATE TABLE IF NOT EXISTS vehiculos (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   placa VARCHAR(20) NOT NULL,
@@ -60,6 +81,9 @@ CREATE TABLE IF NOT EXISTS vehiculos (
   modelo VARCHAR(80),
   color VARCHAR(60),
   referencia_propietario VARCHAR(170),
+  propietario_usuario_id UUID REFERENCES usuarios(id),
+  foto_vehiculo TEXT,
+  foto_placa TEXT,
   categoria_usuario VARCHAR(40) NOT NULL DEFAULT 'INSTITUCIONAL' CHECK(categoria_usuario IN ('MILITAR','CIVIL','ADMINISTRATIVO','ESTUDIANTE','VISITANTE','PROVEEDOR','INSTITUCIONAL')),
   estado VARCHAR(20) NOT NULL DEFAULT 'ACTIVO' CHECK(estado IN ('ACTIVO','SUSPENDIDO','RETIRADO')),
   creado_por UUID REFERENCES usuarios(id),
@@ -121,6 +145,7 @@ CREATE TABLE IF NOT EXISTS eventos_acceso (
   placa_detectada VARCHAR(20),
   vehiculo_id UUID REFERENCES vehiculos(id),
   imagen_url TEXT,
+  evidencia_tipo VARCHAR(30) DEFAULT 'SIN_EVIDENCIA',
   confianza_reconocimiento NUMERIC(5,2),
   resultado_validacion VARCHAR(30) NOT NULL DEFAULT 'PENDIENTE' CHECK(resultado_validacion IN ('AUTORIZADO','DENEGADO','PENDIENTE','MANUAL','INCIERTO')),
   autorizado_manual BOOLEAN NOT NULL DEFAULT FALSE,
@@ -154,6 +179,7 @@ CREATE TABLE IF NOT EXISTS eventos_ocupacion (
   camara_id UUID REFERENCES dispositivos(id),
   origen VARCHAR(30) NOT NULL DEFAULT 'VISION_IA' CHECK(origen IN ('VISION_IA','MANUAL','SIMULADOR','DISPOSITIVO')),
   imagen_url TEXT,
+  evidencia_tipo VARCHAR(30) DEFAULT 'SIN_EVIDENCIA',
   cambiado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS ix_eventos_ocupacion_plaza_fecha ON eventos_ocupacion(plaza_id,cambiado_en DESC);
@@ -241,6 +267,7 @@ DROP TRIGGER IF EXISTS trg_dispositivos_actualizado ON dispositivos;
 CREATE TRIGGER trg_dispositivos_actualizado BEFORE UPDATE ON dispositivos FOR EACH ROW EXECUTE FUNCTION actualizar_fecha_modificacion();
 
 
+-- 02_seed.sql
 INSERT INTO roles(codigo,nombre,descripcion) VALUES
 ('ADMINISTRADOR_SISTEMA','Administrador del sistema','Administración integral, seguridad y configuración.'),
 ('DIRECCION_GRADO','Dirección de Grado','Consulta ejecutiva del estado general y reportes.'),
@@ -366,6 +393,7 @@ SELECT id,'TEMPORAL',NOW()-INTERVAL '1 day',NOW()+INTERVAL '7 days','Visita acad
 AND NOT EXISTS(SELECT 1 FROM autorizaciones_vehiculares a WHERE a.vehiculo_id=vehiculos.id);
 
 
+-- 03_views_functions.sql
 CREATE OR REPLACE VIEW vista_disponibilidad_zonas AS
 SELECT z.id zona_id,z.codigo,z.nombre,z.tipo_zona,z.estado,
        COUNT(p.id) total_plazas,
@@ -392,3 +420,368 @@ BEGIN
  INSERT INTO eventos_ocupacion(plaza_id,estado_anterior,estado_nuevo,confianza,camara_id,origen) VALUES(p_plaza,anterior,p_estado,p_confianza,p_camara,p_origen);
  RETURN fila;
 END; $$ LANGUAGE plpgsql;
+
+
+-- 04_alertas_v11.sql
+-- Migración idempotente V11, compatible con la tabla existente.
+ALTER TABLE alertas ADD COLUMN IF NOT EXISTS clave_incidente VARCHAR(160);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_alertas_incidente_activo ON alertas(clave_incidente) WHERE clave_incidente IS NOT NULL AND estado <> 'CERRADA';
+CREATE INDEX IF NOT EXISTS ix_acciones_alerta_fecha ON acciones_alerta(alerta_id,creado_en);
+
+
+-- 05_auditoria_v15.sql
+-- PARKIA V15: ejecutar idempotentemente sobre instalaciones existentes.
+CREATE INDEX IF NOT EXISTS ix_auditoria_accion_fecha ON auditoria(accion, creado_en DESC);
+CREATE INDEX IF NOT EXISTS ix_auditoria_usuario_fecha ON auditoria(usuario_id, creado_en DESC);
+CREATE INDEX IF NOT EXISTS ix_bitacora_dispositivos_fecha ON bitacora_dispositivos(creado_en DESC);
+CREATE INDEX IF NOT EXISTS ix_respaldos_fecha ON respaldos(creado_en DESC);
+CREATE OR REPLACE FUNCTION parkia_bitacora_dispositivo_estado() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF OLD.estado IS DISTINCT FROM NEW.estado THEN
+   INSERT INTO bitacora_dispositivos(dispositivo_id,tipo_evento,estado_anterior,estado_nuevo,detalle)
+   VALUES(NEW.id,'CAMBIO_ESTADO',OLD.estado,NEW.estado,
+     jsonb_build_object('codigo', NEW.codigo, 'nombre', NEW.nombre, 'origen','CAMBIO_DISPOSITIVO'));
+ END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS trg_parkia_dispositivo_estado ON dispositivos;
+CREATE TRIGGER trg_parkia_dispositivo_estado AFTER UPDATE OF estado ON dispositivos
+FOR EACH ROW EXECUTE FUNCTION parkia_bitacora_dispositivo_estado();
+
+
+-- 06_mapeo_real_v17.sql
+
+-- PARKIA V17 · Mapeo real del campus EMI UALP
+-- Actualiza la nomenclatura y registra plazas/cámaras de acuerdo con la distribución validada en campo.
+
+INSERT INTO zonas_parqueo(codigo,nombre,descripcion,referencia_ubicacion,tipo_zona)
+VALUES
+('Z-EST-TRASERA','Zona Estudiantes - Sector Trasero','Parqueo de estudiantes (motos) ubicado en la parte trasera del campus.','Parte trasera del campus EMI UALP','ESTUDIANTES'),
+('Z-AUTORIDADES','Zona Autoridades - Frente Izquierdo','Parqueo institucional de autoridades ubicado en el frente izquierdo del campus.','Frente izquierdo del campus EMI UALP','AUTORIDADES'),
+('Z-ADMIN','Zona Administrativa - Frente Derecho','Parqueo para personal administrativo ubicado en el frente derecho del campus.','Frente derecho del campus EMI UALP','ADMINISTRATIVO')
+ON CONFLICT(codigo) DO NOTHING;
+
+UPDATE zonas_parqueo SET
+  nombre=CASE codigo
+    WHEN 'Z-EST-TRASERA' THEN 'Zona Estudiantes - Sector Trasero'
+    WHEN 'Z-AUTORIDADES' THEN 'Zona Autoridades - Frente Izquierdo'
+    WHEN 'Z-ADMIN' THEN 'Zona Administrativa - Frente Derecho'
+    ELSE nombre END,
+  descripcion=CASE codigo
+    WHEN 'Z-EST-TRASERA' THEN 'Parqueo de estudiantes (motos) ubicado en la parte trasera del campus.'
+    WHEN 'Z-AUTORIDADES' THEN 'Parqueo institucional de autoridades ubicado en el frente izquierdo del campus.'
+    WHEN 'Z-ADMIN' THEN 'Parqueo para personal administrativo ubicado en el frente derecho del campus.'
+    ELSE descripcion END,
+  referencia_ubicacion=CASE codigo
+    WHEN 'Z-EST-TRASERA' THEN 'Parte trasera del campus EMI UALP'
+    WHEN 'Z-AUTORIDADES' THEN 'Frente izquierdo del campus EMI UALP'
+    WHEN 'Z-ADMIN' THEN 'Frente derecho del campus EMI UALP'
+    ELSE referencia_ubicacion END,
+  tipo_zona=CASE codigo
+    WHEN 'Z-EST-TRASERA' THEN 'ESTUDIANTES'
+    WHEN 'Z-AUTORIDADES' THEN 'AUTORIDADES'
+    WHEN 'Z-ADMIN' THEN 'ADMINISTRATIVO'
+    ELSE tipo_zona END
+WHERE codigo IN ('Z-EST-TRASERA','Z-AUTORIDADES','Z-ADMIN');
+
+INSERT INTO dispositivos(codigo,tipo_dispositivo,nombre,zona_id,punto_acceso,ubicacion_logica,estado,ultima_comunicacion_en)
+SELECT 'CAM-LPR-ING-01','CAMARA_ACCESO_LPR','Cámara IA de control de placas - acceso principal',NULL,'INGRESO PRINCIPAL','Control general de ingreso vehicular','EN_LINEA',NOW()
+WHERE NOT EXISTS (SELECT 1 FROM dispositivos WHERE codigo='CAM-LPR-ING-01');
+
+INSERT INTO dispositivos(codigo,tipo_dispositivo,nombre,zona_id,ubicacion_logica,estado,ultima_comunicacion_en)
+SELECT 'CAM-OCP-EST-01','CAMARA_OCUPACION','Cámara IA ocupación - Estudiantes trasero',z.id,'Cobertura general del parqueo de estudiantes (motos)','EN_LINEA',NOW()
+FROM zonas_parqueo z WHERE z.codigo='Z-EST-TRASERA'
+AND NOT EXISTS (SELECT 1 FROM dispositivos WHERE codigo='CAM-OCP-EST-01');
+
+INSERT INTO dispositivos(codigo,tipo_dispositivo,nombre,zona_id,ubicacion_logica,estado,ultima_comunicacion_en)
+SELECT 'CAM-OCP-AUT-01','CAMARA_OCUPACION','Cámara IA ocupación - Autoridades frente izquierdo',z.id,'Cobertura del frente izquierdo para autoridades','EN_LINEA',NOW()
+FROM zonas_parqueo z WHERE z.codigo='Z-AUTORIDADES'
+AND NOT EXISTS (SELECT 1 FROM dispositivos WHERE codigo='CAM-OCP-AUT-01');
+
+INSERT INTO dispositivos(codigo,tipo_dispositivo,nombre,zona_id,ubicacion_logica,estado,ultima_comunicacion_en)
+SELECT 'CAM-OCP-ADM-01','CAMARA_OCUPACION','Cámara IA ocupación - Administrativo frente derecho',z.id,'Cobertura del frente derecho para administrativos','EN_LINEA',NOW()
+FROM zonas_parqueo z WHERE z.codigo='Z-ADMIN'
+AND NOT EXISTS (SELECT 1 FROM dispositivos WHERE codigo='CAM-OCP-ADM-01');
+
+-- Plazas de estudiantes (motos) · sector trasero
+INSERT INTO plazas_parqueo(zona_id,codigo,tipo_plaza,estado_actual,confianza,camara_id,coordenada_x,coordenada_y)
+SELECT z.id, v.codigo, 'MOTOCICLETA', v.estado, v.confianza, d.id, v.x, v.y
+FROM zonas_parqueo z
+JOIN dispositivos d ON d.codigo='CAM-OCP-EST-01'
+JOIN (VALUES
+('EM01','LIBRE',1,1,97.4),('EM02','OCUPADA',2,1,95.8),('EM03','LIBRE',3,1,98.1),('EM04','LIBRE',4,1,97.9),('EM05','OCUPADA',5,1,95.7),('EM06','LIBRE',6,1,98.0),
+('EM07','LIBRE',1,2,97.6),('EM08','OCUPADA',2,2,96.1),('EM09','LIBRE',3,2,98.4),('EM10','LIBRE',4,2,97.8),('EM11','OCUPADA',5,2,95.9),('EM12','LIBRE',6,2,98.2),
+('EM13','LIBRE',1,3,97.7),('EM14','LIBRE',2,3,98.0),('EM15','OCUPADA',3,3,95.5),('EM16','LIBRE',4,3,97.5),('EM17','LIBRE',5,3,98.6),('EM18','OCUPADA',6,3,95.3),
+('EM19','LIBRE',1,4,97.8),('EM20','LIBRE',2,4,98.2),('EM21','OCUPADA',3,4,95.0),('EM22','LIBRE',4,4,97.6),('EM23','LIBRE',5,4,98.3),('EM24','OCUPADA',6,4,95.4)
+) AS v(codigo,estado,x,y,confianza) ON TRUE
+WHERE z.codigo='Z-EST-TRASERA'
+AND NOT EXISTS (SELECT 1 FROM plazas_parqueo p WHERE p.zona_id=z.id AND p.codigo=v.codigo);
+
+-- Plazas para autoridades · frente izquierdo
+INSERT INTO plazas_parqueo(zona_id,codigo,tipo_plaza,estado_actual,confianza,camara_id,coordenada_x,coordenada_y)
+SELECT z.id, v.codigo, 'OFICIAL', v.estado, v.confianza, d.id, v.x, v.y
+FROM zonas_parqueo z
+JOIN dispositivos d ON d.codigo='CAM-OCP-AUT-01'
+JOIN (VALUES
+('AU01','LIBRE',1,1,97.8),('AU02','OCUPADA',2,1,96.2),('AU03','LIBRE',3,1,98.0),('AU04','LIBRE',4,1,97.4),
+('AU05','OCUPADA',1,2,95.9),('AU06','LIBRE',2,2,98.3),('AU07','LIBRE',3,2,97.7),('AU08','OCUPADA',4,2,95.6)
+) AS v(codigo,estado,x,y,confianza) ON TRUE
+WHERE z.codigo='Z-AUTORIDADES'
+AND NOT EXISTS (SELECT 1 FROM plazas_parqueo p WHERE p.zona_id=z.id AND p.codigo=v.codigo);
+
+-- Plazas administrativas · frente derecho
+INSERT INTO plazas_parqueo(zona_id,codigo,tipo_plaza,estado_actual,confianza,camara_id,coordenada_x,coordenada_y)
+SELECT z.id, v.codigo, 'ESTANDAR', v.estado, v.confianza, d.id, v.x, v.y
+FROM zonas_parqueo z
+JOIN dispositivos d ON d.codigo='CAM-OCP-ADM-01'
+JOIN (VALUES
+('AD01','LIBRE',1,1,98.4),('AD02','OCUPADA',2,1,95.2),('AD03','LIBRE',3,1,98.1),
+('AD04','LIBRE',1,2,97.9),('AD05','OCUPADA',2,2,95.7),('AD06','LIBRE',3,2,98.2),
+('AD07','LIBRE',1,3,97.6),('AD08','OCUPADA',2,3,95.9),('AD09','LIBRE',3,3,98.0)
+) AS v(codigo,estado,x,y,confianza) ON TRUE
+WHERE z.codigo='Z-ADMIN'
+AND NOT EXISTS (SELECT 1 FROM plazas_parqueo p WHERE p.zona_id=z.id AND p.codigo=v.codigo);
+
+
+-- 07_mapa_rectangulos_v26.sql
+
+-- PARKIA V26 · Implantación basada en croquis oficial con rectángulos
+-- Refuerza la distribución real del campus, incorpora el parqueo de motocicletas estudiantiles
+-- y amplía el número de plazas para aproximarse a la geometría mostrada en el croquis validado.
+
+INSERT INTO zonas_parqueo(codigo,nombre,descripcion,referencia_ubicacion,tipo_zona)
+VALUES
+('Z-EST-TRASERA','Zona Estudiantes - Sector Trasero','Parqueo principal de estudiantes, de acuerdo con la distribución de rectángulos del croquis oficial.','Sector posterior y central del campus EMI UALP','ESTUDIANTES'),
+('Z-EST-MOTO','Zona Estudiantes - Motos','Parqueo lateral de motocicletas estudiantiles, ubicado en el costado oeste del campus.','Lateral oeste del campus EMI UALP','ESTUDIANTES'),
+('Z-AUTORIDADES','Zona Autoridades - Frente Izquierdo','Parqueo institucional reservado para autoridades, según croquis oficial.','Frente derecho-oriental del campus EMI UALP','AUTORIDADES'),
+('Z-ADMIN','Zona Administrativa - Frente Derecho','Parqueo operativo para personal administrativo, según croquis oficial.','Frente sur-oriental del campus EMI UALP','ADMINISTRATIVO')
+ON CONFLICT(codigo) DO NOTHING;
+
+UPDATE zonas_parqueo SET
+  nombre=CASE codigo
+    WHEN 'Z-EST-TRASERA' THEN 'Zona Estudiantes - Sector Trasero'
+    WHEN 'Z-EST-MOTO' THEN 'Zona Estudiantes - Motos'
+    WHEN 'Z-AUTORIDADES' THEN 'Zona Autoridades - Frente Izquierdo'
+    WHEN 'Z-ADMIN' THEN 'Zona Administrativa - Frente Derecho'
+    ELSE nombre END,
+  descripcion=CASE codigo
+    WHEN 'Z-EST-TRASERA' THEN 'Parqueo principal de estudiantes, de acuerdo con la distribución de rectángulos del croquis oficial.'
+    WHEN 'Z-EST-MOTO' THEN 'Parqueo lateral de motocicletas estudiantiles, ubicado en el costado oeste del campus.'
+    WHEN 'Z-AUTORIDADES' THEN 'Parqueo institucional reservado para autoridades, según croquis oficial.'
+    WHEN 'Z-ADMIN' THEN 'Parqueo operativo para personal administrativo, según croquis oficial.'
+    ELSE descripcion END,
+  referencia_ubicacion=CASE codigo
+    WHEN 'Z-EST-TRASERA' THEN 'Sector posterior y central del campus EMI UALP'
+    WHEN 'Z-EST-MOTO' THEN 'Lateral oeste del campus EMI UALP'
+    WHEN 'Z-AUTORIDADES' THEN 'Frente derecho-oriental del campus EMI UALP'
+    WHEN 'Z-ADMIN' THEN 'Frente sur-oriental del campus EMI UALP'
+    ELSE referencia_ubicacion END,
+  tipo_zona=CASE codigo
+    WHEN 'Z-EST-TRASERA' THEN 'ESTUDIANTES'
+    WHEN 'Z-EST-MOTO' THEN 'ESTUDIANTES'
+    WHEN 'Z-AUTORIDADES' THEN 'AUTORIDADES'
+    WHEN 'Z-ADMIN' THEN 'ADMINISTRATIVO'
+    ELSE tipo_zona END
+WHERE codigo IN ('Z-EST-TRASERA','Z-EST-MOTO','Z-AUTORIDADES','Z-ADMIN');
+
+INSERT INTO dispositivos(codigo,tipo_dispositivo,nombre,zona_id,ubicacion_logica,estado,ultima_comunicacion_en)
+SELECT 'CAM-OCP-MOTO-01','CAMARA_OCUPACION','Cámara IA ocupación - Estudiantes moto',z.id,'Cobertura del lateral oeste para motocicletas estudiantiles','EN_LINEA',NOW()
+FROM zonas_parqueo z WHERE z.codigo='Z-EST-MOTO'
+AND NOT EXISTS (SELECT 1 FROM dispositivos WHERE codigo='CAM-OCP-MOTO-01');
+
+UPDATE dispositivos SET nombre='Cámara IA ocupación - Estudiantes sector trasero', ubicacion_logica='Cobertura del parqueo principal de estudiantes' WHERE codigo='CAM-OCP-EST-01';
+UPDATE dispositivos SET nombre='Cámara IA ocupación - Autoridades', ubicacion_logica='Cobertura del parqueo de autoridades según croquis oficial' WHERE codigo='CAM-OCP-AUT-01';
+UPDATE dispositivos SET nombre='Cámara IA ocupación - Administrativo', ubicacion_logica='Cobertura del parqueo administrativo según croquis oficial' WHERE codigo='CAM-OCP-ADM-01';
+
+UPDATE plazas_parqueo p SET tipo_plaza='ESTANDAR'
+FROM zonas_parqueo z WHERE p.zona_id=z.id AND z.codigo='Z-EST-TRASERA';
+UPDATE plazas_parqueo p SET tipo_plaza='MOTOCICLETA'
+FROM zonas_parqueo z WHERE p.zona_id=z.id AND z.codigo='Z-EST-MOTO';
+UPDATE plazas_parqueo p SET tipo_plaza='OFICIAL'
+FROM zonas_parqueo z WHERE p.zona_id=z.id AND z.codigo='Z-AUTORIDADES';
+UPDATE plazas_parqueo p SET tipo_plaza='ESTANDAR'
+FROM zonas_parqueo z WHERE p.zona_id=z.id AND z.codigo='Z-ADMIN';
+
+-- Estudiantes
+INSERT INTO plazas_parqueo(zona_id,codigo,tipo_plaza,estado_actual,confianza,camara_id,coordenada_x,coordenada_y)
+SELECT z.id, v.codigo, 'ESTANDAR', v.estado, v.confianza, d.id, v.x, v.y
+FROM zonas_parqueo z
+JOIN dispositivos d ON d.codigo='CAM-OCP-EST-01'
+JOIN (VALUES
+('EM01','OCUPADA',1,1,95.4),
+('EM02','LIBRE',2,1,98.6),
+('EM03','LIBRE',3,1,98.6),
+('EM04','OCUPADA',4,1,95.4),
+('EM05','LIBRE',5,1,98.6),
+('EM06','OCUPADA',6,1,95.4),
+('EM07','LIBRE',7,1,98.6),
+('EM08','LIBRE',8,1,98.6),
+('EM09','OCUPADA',9,1,95.4),
+('EM10','LIBRE',10,1,98.6),
+('EM11','OCUPADA',1,2,95.4),
+('EM12','LIBRE',2,2,98.6),
+('EM13','LIBRE',3,2,98.6),
+('EM14','OCUPADA',4,2,95.4),
+('EM15','LIBRE',5,2,98.6),
+('EM16','OCUPADA',6,2,95.4),
+('EM17','LIBRE',7,2,98.6),
+('EM18','LIBRE',8,2,98.6),
+('EM19','OCUPADA',9,2,95.4),
+('EM20','LIBRE',10,2,98.6),
+('EM21','OCUPADA',1,3,95.4),
+('EM22','LIBRE',2,3,98.6),
+('EM23','LIBRE',3,3,98.6),
+('EM24','OCUPADA',4,3,95.4),
+('EM25','LIBRE',5,3,98.6),
+('EM26','OCUPADA',6,3,95.4),
+('EM27','LIBRE',7,3,98.6),
+('EM28','LIBRE',8,3,98.6),
+('EM29','OCUPADA',9,3,95.4),
+('EM30','LIBRE',10,3,98.6),
+('EM31','OCUPADA',1,4,95.4),
+('EM32','LIBRE',2,4,98.6),
+('EM33','LIBRE',3,4,98.6),
+('EM34','OCUPADA',4,4,95.4),
+('EM35','LIBRE',5,4,98.6),
+('EM36','OCUPADA',6,4,95.4),
+('EM37','LIBRE',7,4,98.6),
+('EM38','LIBRE',8,4,98.6),
+('EM39','OCUPADA',9,4,95.4),
+('EM40','LIBRE',10,4,98.6),
+('EM41','OCUPADA',1,5,95.4),
+('EM42','LIBRE',2,5,98.6),
+('EM43','LIBRE',3,5,98.6),
+('EM44','OCUPADA',4,5,95.4),
+('EM45','LIBRE',5,5,98.6),
+('EM46','OCUPADA',6,5,95.4),
+('EM47','LIBRE',7,5,98.6),
+('EM48','LIBRE',8,5,98.6),
+('EM49','OCUPADA',9,5,95.4),
+('EM50','LIBRE',10,5,98.6),
+('EM51','OCUPADA',1,6,95.4),
+('EM52','LIBRE',2,6,98.6),
+('EM53','LIBRE',3,6,98.6),
+('EM54','OCUPADA',4,6,95.4),
+('EM55','LIBRE',5,6,98.6),
+('EM56','OCUPADA',6,6,95.4),
+('EM57','LIBRE',7,6,98.6),
+('EM58','LIBRE',8,6,98.6),
+('EM59','OCUPADA',9,6,95.4),
+('EM60','LIBRE',10,6,98.6),
+('EM61','OCUPADA',1,7,95.4),
+('EM62','LIBRE',2,7,98.6)
+) AS v(codigo,estado,x,y,confianza) ON TRUE
+WHERE z.codigo='Z-EST-TRASERA'
+AND NOT EXISTS (SELECT 1 FROM plazas_parqueo p WHERE p.zona_id=z.id AND p.codigo=v.codigo);
+
+-- Estudiantes moto
+INSERT INTO plazas_parqueo(zona_id,codigo,tipo_plaza,estado_actual,confianza,camara_id,coordenada_x,coordenada_y)
+SELECT z.id, v.codigo, 'MOTOCICLETA', v.estado, v.confianza, d.id, v.x, v.y
+FROM zonas_parqueo z
+JOIN dispositivos d ON d.codigo='CAM-OCP-MOTO-01'
+JOIN (VALUES
+('MT01','LIBRE',1,1,98.6),
+('MT02','OCUPADA',2,1,95.4),
+('MT03','LIBRE',3,1,98.6),
+('MT04','LIBRE',4,1,98.6)
+) AS v(codigo,estado,x,y,confianza) ON TRUE
+WHERE z.codigo='Z-EST-MOTO'
+AND NOT EXISTS (SELECT 1 FROM plazas_parqueo p WHERE p.zona_id=z.id AND p.codigo=v.codigo);
+
+-- Autoridades
+INSERT INTO plazas_parqueo(zona_id,codigo,tipo_plaza,estado_actual,confianza,camara_id,coordenada_x,coordenada_y)
+SELECT z.id, v.codigo, 'OFICIAL', v.estado, v.confianza, d.id, v.x, v.y
+FROM zonas_parqueo z
+JOIN dispositivos d ON d.codigo='CAM-OCP-AUT-01'
+JOIN (VALUES
+('AU01','OCUPADA',1,1,95.4),
+('AU02','LIBRE',2,1,98.6),
+('AU03','LIBRE',3,1,98.6),
+('AU04','LIBRE',4,1,98.6),
+('AU05','OCUPADA',5,1,95.4),
+('AU06','LIBRE',6,1,98.6),
+('AU07','LIBRE',7,1,98.6),
+('AU08','LIBRE',8,1,98.6),
+('AU09','OCUPADA',9,1,95.4),
+('AU10','LIBRE',10,1,98.6),
+('AU11','LIBRE',1,2,98.6),
+('AU12','LIBRE',2,2,98.6),
+('AU13','OCUPADA',3,2,95.4),
+('AU14','LIBRE',4,2,98.6)
+) AS v(codigo,estado,x,y,confianza) ON TRUE
+WHERE z.codigo='Z-AUTORIDADES'
+AND NOT EXISTS (SELECT 1 FROM plazas_parqueo p WHERE p.zona_id=z.id AND p.codigo=v.codigo);
+
+-- Administrativo
+INSERT INTO plazas_parqueo(zona_id,codigo,tipo_plaza,estado_actual,confianza,camara_id,coordenada_x,coordenada_y)
+SELECT z.id, v.codigo, 'ESTANDAR', v.estado, v.confianza, d.id, v.x, v.y
+FROM zonas_parqueo z
+JOIN dispositivos d ON d.codigo='CAM-OCP-ADM-01'
+JOIN (VALUES
+('AD01','OCUPADA',1,1,95.4),
+('AD02','LIBRE',2,1,98.6),
+('AD03','LIBRE',3,1,98.6),
+('AD04','LIBRE',4,1,98.6),
+('AD05','OCUPADA',5,1,95.4),
+('AD06','LIBRE',6,1,98.6),
+('AD07','LIBRE',7,1,98.6),
+('AD08','LIBRE',8,1,98.6),
+('AD09','OCUPADA',9,1,95.4),
+('AD10','LIBRE',10,1,98.6),
+('AD11','LIBRE',1,2,98.6),
+('AD12','LIBRE',2,2,98.6),
+('AD13','OCUPADA',3,2,95.4),
+('AD14','LIBRE',4,2,98.6)
+) AS v(codigo,estado,x,y,confianza) ON TRUE
+WHERE z.codigo='Z-ADMIN'
+AND NOT EXISTS (SELECT 1 FROM plazas_parqueo p WHERE p.zona_id=z.id AND p.codigo=v.codigo);
+
+
+-- 08_casos_uso_v29.sql
+-- PARKIA V29: nueve casos de uso y siete actores autorizados. Idempotente.
+INSERT INTO permisos(codigo,modulo,descripcion) VALUES ('propietarios.ver','Propietarios','Consultar propietarios'),('propietarios.gestionar','Propietarios','Registrar y actualizar propietarios') ON CONFLICT(codigo) DO NOTHING;
+INSERT INTO roles(codigo,nombre,descripcion,activo) VALUES ('ADMIN','Administrador','Gestión institucional integral',TRUE),('OPERADORES','Operadores','Operación vehicular y supervisión',TRUE),('SOPORTE','Soporte','Soporte técnico, seguridad y continuidad',TRUE),('RRHH','Recursos Humanos','Validación y registros autorizados',TRUE),('DIRECTOR','Director','Consulta de dirección e informes',TRUE),('GUARDIA','Guardia','Supervisión de accesos y alertas',TRUE),('PROPIETARIO','Propietario','Estudiante o docente, sin atribuciones de autoridades ni administrativos',TRUE) ON CONFLICT(codigo) DO UPDATE SET nombre=EXCLUDED.nombre,descripcion=EXCLUDED.descripcion,activo=TRUE;
+UPDATE usuarios u SET rol_id=(SELECT id FROM roles WHERE codigo='ADMIN'),actualizado_en=NOW() WHERE u.rol_id=(SELECT id FROM roles WHERE codigo='ADMINISTRADOR_SISTEMA') AND EXISTS(SELECT 1 FROM roles WHERE codigo='ADMINISTRADOR_SISTEMA');
+UPDATE usuarios u SET rol_id=(SELECT id FROM roles WHERE codigo='DIRECTOR'),actualizado_en=NOW() WHERE u.rol_id=(SELECT id FROM roles WHERE codigo='DIRECCION_GRADO') AND EXISTS(SELECT 1 FROM roles WHERE codigo='DIRECCION_GRADO');
+UPDATE usuarios u SET rol_id=(SELECT id FROM roles WHERE codigo='OPERADORES'),actualizado_en=NOW() WHERE u.rol_id=(SELECT id FROM roles WHERE codigo='JEFE_OPERACIONES') AND EXISTS(SELECT 1 FROM roles WHERE codigo='JEFE_OPERACIONES');
+UPDATE usuarios u SET rol_id=(SELECT id FROM roles WHERE codigo='GUARDIA'),actualizado_en=NOW() WHERE u.rol_id=(SELECT id FROM roles WHERE codigo='PERSONAL_GUARDIA') AND EXISTS(SELECT 1 FROM roles WHERE codigo='PERSONAL_GUARDIA');
+UPDATE usuarios u SET rol_id=(SELECT id FROM roles WHERE codigo='SOPORTE'),actualizado_en=NOW() WHERE u.rol_id=(SELECT id FROM roles WHERE codigo='SOPORTE_TIC') AND EXISTS(SELECT 1 FROM roles WHERE codigo='SOPORTE_TIC');
+UPDATE usuarios u SET rol_id=(SELECT id FROM roles WHERE codigo='SOPORTE'),actualizado_en=NOW() WHERE u.rol_id=(SELECT id FROM roles WHERE codigo='INFRAESTRUCTURA') AND EXISTS(SELECT 1 FROM roles WHERE codigo='INFRAESTRUCTURA');
+UPDATE usuarios u SET rol_id=(SELECT id FROM roles WHERE codigo='RRHH'),actualizado_en=NOW() WHERE u.rol_id=(SELECT id FROM roles WHERE codigo='RECURSOS_HUMANOS') AND EXISTS(SELECT 1 FROM roles WHERE codigo='RECURSOS_HUMANOS');
+UPDATE usuarios u SET rol_id=(SELECT id FROM roles WHERE codigo='PROPIETARIO'),actualizado_en=NOW() WHERE u.rol_id=(SELECT id FROM roles WHERE codigo='ESTUDIANTE') AND EXISTS(SELECT 1 FROM roles WHERE codigo='ESTUDIANTE');
+CREATE TABLE IF NOT EXISTS perfiles_propietarios (usuario_id UUID PRIMARY KEY REFERENCES usuarios(id) ON DELETE CASCADE, tipo VARCHAR(12) NOT NULL CHECK(tipo IN ('ESTUDIANTE','DOCENTE')), creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW(), actualizado_en TIMESTAMPTZ NOT NULL DEFAULT NOW());
+INSERT INTO perfiles_propietarios(usuario_id,tipo) SELECT u.id, CASE WHEN UPPER(COALESCE(u.area_institucional,'')) LIKE '%DOCENTE%' THEN 'DOCENTE' ELSE 'ESTUDIANTE' END FROM usuarios u JOIN roles r ON r.id=u.rol_id WHERE r.codigo='PROPIETARIO' ON CONFLICT(usuario_id) DO NOTHING;
+UPDATE roles SET activo=FALSE WHERE codigo NOT IN ('ADMIN','OPERADORES','SOPORTE','RRHH','DIRECTOR','GUARDIA','PROPIETARIO');
+DELETE FROM roles_permisos WHERE rol_id=(SELECT id FROM roles WHERE codigo='ADMIN');
+INSERT INTO roles_permisos(rol_id,permiso_id) SELECT r.id,p.id FROM roles r CROSS JOIN permisos p WHERE r.codigo='ADMIN' ON CONFLICT DO NOTHING;
+DELETE FROM roles_permisos WHERE rol_id=(SELECT id FROM roles WHERE codigo='OPERADORES');
+INSERT INTO roles_permisos(rol_id,permiso_id) SELECT r.id,p.id FROM roles r JOIN permisos p ON p.codigo=ANY(ARRAY['panel.ver','propietarios.ver','propietarios.gestionar','vehiculos.ver','vehiculos.gestionar','acceso.ver','acceso.validar','parqueo.ver','parqueo.gestionar','ocupacion.ver','ocupacion.actualizar','alertas.ver','alertas.gestionar','historial.ver','reportes.generar']) WHERE r.codigo='OPERADORES' ON CONFLICT DO NOTHING;
+DELETE FROM roles_permisos WHERE rol_id=(SELECT id FROM roles WHERE codigo='SOPORTE');
+INSERT INTO roles_permisos(rol_id,permiso_id) SELECT r.id,p.id FROM roles r JOIN permisos p ON p.codigo=ANY(ARRAY['panel.ver','usuarios.gestionar','parqueo.ver','parqueo.gestionar','ocupacion.ver','ocupacion.actualizar','alertas.ver','alertas.gestionar','auditoria.ver','respaldos.gestionar','dispositivos.gestionar','configuracion.gestionar','historial.ver','propietarios.ver']) WHERE r.codigo='SOPORTE' ON CONFLICT DO NOTHING;
+DELETE FROM roles_permisos WHERE rol_id=(SELECT id FROM roles WHERE codigo='RRHH');
+INSERT INTO roles_permisos(rol_id,permiso_id) SELECT r.id,p.id FROM roles r JOIN permisos p ON p.codigo=ANY(ARRAY['usuarios.gestionar','propietarios.ver','propietarios.gestionar','vehiculos.ver','historial.ver','reportes.generar']) WHERE r.codigo='RRHH' ON CONFLICT DO NOTHING;
+DELETE FROM roles_permisos WHERE rol_id=(SELECT id FROM roles WHERE codigo='DIRECTOR');
+INSERT INTO roles_permisos(rol_id,permiso_id) SELECT r.id,p.id FROM roles r JOIN permisos p ON p.codigo=ANY(ARRAY['panel.ver','parqueo.ver','ocupacion.ver','alertas.ver','historial.ver','reportes.generar','auditoria.ver']) WHERE r.codigo='DIRECTOR' ON CONFLICT DO NOTHING;
+DELETE FROM roles_permisos WHERE rol_id=(SELECT id FROM roles WHERE codigo='GUARDIA');
+INSERT INTO roles_permisos(rol_id,permiso_id) SELECT r.id,p.id FROM roles r JOIN permisos p ON p.codigo=ANY(ARRAY['panel.ver','parqueo.ver','ocupacion.ver','alertas.ver','alertas.gestionar','vehiculos.ver','acceso.ver','acceso.validar','historial.ver','reportes.generar']) WHERE r.codigo='GUARDIA' ON CONFLICT DO NOTHING;
+DELETE FROM roles_permisos WHERE rol_id=(SELECT id FROM roles WHERE codigo='PROPIETARIO');
+INSERT INTO roles_permisos(rol_id,permiso_id) SELECT r.id,p.id FROM roles r JOIN permisos p ON p.codigo=ANY(ARRAY['estudiante.mi_parqueo']) WHERE r.codigo='PROPIETARIO' ON CONFLICT DO NOTHING;
+
+
+-- 09_nexo_v30.sql
+-- V30: retain V29 data, enforce case-insensitive username uniqueness only when safe.
+DO $$ BEGIN
+ IF EXISTS (SELECT lower(nombre_usuario) FROM usuarios GROUP BY lower(nombre_usuario) HAVING count(*)>1) THEN
+  RAISE EXCEPTION 'Hay usuarios duplicados por mayúsculas/minúsculas. Resolver antes de migrar a V30.';
+ END IF;
+END $$;
+CREATE UNIQUE INDEX IF NOT EXISTS ux_usuarios_nombre_ci ON usuarios(lower(nombre_usuario));
+INSERT INTO configuracion_sistema(clave,valor,descripcion) VALUES
+ ('identidad_sistema','{"nombre":"NEXO PARK","institucion":"EMI UALP","version":"30.0.0","anterior":"PARKIA"}'::jsonb,'Identidad visual y versión')
+ ON CONFLICT(clave) DO UPDATE SET valor=EXCLUDED.valor;
+
+INSERT INTO permisos(codigo,modulo,descripcion) VALUES ('acceso.propio','Control de ingreso y salida','Consultar solo movimientos de vehículos propios') ON CONFLICT(codigo) DO NOTHING;
+INSERT INTO roles_permisos(rol_id,permiso_id) SELECT r.id,p.id FROM roles r CROSS JOIN permisos p WHERE r.codigo IN ('PROPIETARIO','ADMIN') AND p.codigo='acceso.propio' ON CONFLICT DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS migraciones_parkia(version VARCHAR(30) PRIMARY KEY,aplicada_en TIMESTAMPTZ DEFAULT NOW());
+INSERT INTO migraciones_parkia(version) VALUES ('V11_ALERTAS'),('V15_AUDITORIA'),('V17_MAPEO'),('V26_MAPA'),('V29_CASOS_USO'),('V30_NEXO') ON CONFLICT DO NOTHING;

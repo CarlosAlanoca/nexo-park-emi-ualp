@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import {env} from '../config/env.js';
 import sharp from 'sharp';
 import zlib from 'node:zlib';
 
@@ -20,8 +21,8 @@ class PDF {
   async imageAsJpeg(file,key){try{const j=await sharp(file).flatten({background:'#ffffff'}).resize({width:460,withoutEnlargement:true}).jpeg({quality:85}).toBuffer();const info=await sharp(j).metadata();const dict=`/Type /XObject /Subtype /Image /Width ${info.width} /Height ${info.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode`;
     const id=this.object(this.stream(j,dict));this.images[key]={id,width:info.width,height:info.height};}catch{/* logos optional when missing */}}
   image(key,x,top,w,h,alpha=false){const img=this.images[key];if(!img)return;this.push('q');if(alpha)this.push('/GS1 gs');this.push(`${this.fmt(w)} 0 0 ${this.fmt(h)} ${this.fmt(x)} ${this.fmt(this.height-top-h)} cm /${key} Do Q`)}
-  newPage(){if(this.pg)this.finishPage();this.buf=[];this.pg={};this.top=132;this.rect(0,0,this.width,93,'#0a3761');this.rect(0,93,this.width,4,'#13a7d2');this.rect(36,18,113,57,'#ffffff');this.image('Parkia',44,29,97,35);this.text('ESCUELA MILITAR DE INGENIERÍA',176,31,14,true,'#ffffff');this.text('Unidad Académica La Paz  |  PARKIA',176,55,9,false,'#cbe6f7');this.text('REPORTE OFICIAL',36,109,10,true,'#0b527e');}
-  finishPage(){if(!this.pg)return;const num=this.pages.length+1;this.line(36,786,559,786,'#d3e0ed');this.text('PARKIA | Gestión institucional de parqueos',36,796,8,false,'#557189');this.text(`Página ${num}`,517,796,8,false,'#557189');this.image('Emi',435,714,118,51,true);
+  newPage(){if(this.pg)this.finishPage();this.buf=[];this.pg={};this.top=132;this.rect(0,0,this.width,93,'#0a3761');this.rect(0,93,this.width,4,'#13a7d2');this.rect(30,18,133,57,'#ffffff');this.image('Parkia',36,32,121,26);this.text('ESCUELA MILITAR DE INGENIERÍA',176,31,14,true,'#ffffff');this.text('Unidad Académica La Paz  |  NEXO PARK',176,55,9,false,'#cbe6f7');this.text('INFORME DE PARQUEOS',36,109,10,true,'#0b527e');}
+  finishPage(){if(!this.pg)return;const num=this.pages.length+1;this.line(36,786,559,786,'#d3e0ed');this.text('NEXO PARK | Gestión institucional de parqueos',36,796,8,false,'#557189');this.text(`Página ${num}`,517,796,8,false,'#557189');this.image('Emi',435,714,118,51,true);
     const body=this.buf.join('\n')+'\n';const zip=zlib.deflateSync(Buffer.from(body,'latin1'));const content=this.object(this.stream(zip,'/Filter /FlateDecode'));this.pages.push(content);this.pg=null;}
   space(n=12){this.top+=n}
   ensure(h){if(this.top+h>765){this.newPage()}}
@@ -33,7 +34,7 @@ class PDF {
       this.rect(x,this.top,tableW,rh,idx%2?'#f2f7fc':'#ffffff','#e2ebf3');let xx=x;for(let col=0;col<headers.length;col++){for(let z=0;z<Math.min(splitted[col].length,4);z++)this.text(splitted[col][z],xx+6,this.top+5+z*11,8,false,'#183451');xx+=colW[col]}this.top+=rh;}
     this.top+=18;
   }
-  async render(){this.finishPage();const kids=[];const pagesId=this.object('');const infoId=this.object('<< /Producer (PARKIA EMI UALP) /Title (Informe institucional PARKIA) >>');
+  async render(){this.finishPage();const kids=[];const pagesId=this.object('');const infoId=this.object('<< /Producer (NEXO PARK EMI UALP) /Title (Informe institucional NEXO PARK) >>');
     const imgs=Object.entries(this.images).map(([k,v])=>`/${k} ${v.id} 0 R`).join(' ');
     for(const cid of this.pages){const pid=this.object(`<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${this.width} ${this.height}] /Resources << /Font << /F1 ${this.font1} 0 R /F2 ${this.font2} 0 R >> /XObject << ${imgs} >> /ExtGState << /GS1 ${this.gs} 0 R >> >> /Contents ${cid} 0 R >>`);kids.push(pid)}
     this.objects[pagesId]=`<< /Type /Pages /Count ${kids.length} /Kids [${kids.map(i=>i+' 0 R').join(' ')}] >>`;
@@ -45,7 +46,7 @@ class PDF {
   }
 }
 export async function generarInformePDF(data,{usuario='Institución',zonaNombre='Todas las zonas'}={}){
-  const pdf=new PDF();const base=process.env.FRONTEND_DIR||path.resolve(process.cwd(),'../frontend');
+  const pdf=new PDF();const base=env.frontendDir;
   await pdf.imageAsJpeg(path.join(base,'assets/logo/parkia-logo.svg'),'Parkia');
   await pdf.imageAsJpeg(path.join(base,'assets/logo/emi-logo.png'),'Emi');
   pdf.newPage();pdf.title('Informe de flujo, ocupación y validaciones');

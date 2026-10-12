@@ -49,7 +49,7 @@ export async function authenticate(req, res, next) {
       rol: s.rol_codigo,
       nombreRol: s.rol_nombre,
       // Aislamiento defensivo: el estudiante no hereda accesos administrativos por error de configuración.
-      permisos: s.rol_codigo === 'PROPIETARIO' ? ['estudiante.mi_parqueo'] : (Array.isArray(s.permisos) ? s.permisos : []),
+      permisos: s.rol_codigo === 'PROPIETARIO' ? ['estudiante.mi_parqueo','acceso.propio'] : (Array.isArray(s.permisos) ? s.permisos : []),
       zonaAsignadaId: s.zona_asignada_id,
       zonaCodigo: s.zona_codigo,
       zonaNombre: s.zona_nombre

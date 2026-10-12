@@ -1,20 +1,5 @@
-const CACHE='parkia-v29-nueve-casos-pdf';
-const ASSETS=[
-  '/parqueos','/login','/sistema',
-  '/css/base.css','/css/public.css','/css/app.css','/css/v15.css',
-  '/js/api.js','/js/auth.js','/js/app.js','/js/theme.js','/js/pages/propietarios.js','/js/pages/agrupado.js','/js/pages/reportes.js','/js/pages/parqueos.js','/js/pages/ocupacion.js',
-  '/assets/logo/parkia-logo.svg',
-  '/assets/maps/emi_mapa_general_validado.png',
-  '/assets/maps/emi_mapa_rectangulos_usuario_v27.png',
-  '/assets/maps/emi_mapa_croquis_rectangulos_v26.png',
-  '/assets/maps/emi_mapa_general_claro.png',
-  '/assets/maps/emi_mapa_interactivo_v18.png',
-  '/assets/maps/emi_autoridades_frente_izquierdo.png',
-  '/assets/maps/emi_autoridades_frente_izquierdo_claro.png',
-  '/assets/maps/emi_administrativo_frente_derecho.png',
-  '/assets/maps/emi_administrativo_frente_derecho_claro.png',
-  '/assets/maps/emi_estudiantes_sector_trasero.png'
-];
+const CACHE='nexo-park-v30';
+const ASSETS=["/css/nexo.css","/assets/logo/nexo-icon.svg","/modules/control/propio.js","/modules/movil/movil.js","/", "/infraestructura", "/parqueos", "/login", "/sistema", "/shared/agrupado.js", "/css/base.css", "/css/v15.css", "/css/app.css", "/css/public.css", "/js/api.js", "/js/auth.js", "/js/public.js", "/js/theme.js", "/js/app.js", "/assets/logo/parkia-logo.svg", "/modules/reportes/reportes.js", "/modules/usuarios/usuarios.js", "/modules/propietarios/propietarios.js", "/modules/movil/estudiante.js", "/modules/alertas/alertas.js", "/modules/vehiculos/vehiculos.js", "/modules/lugares/parqueos.js", "/modules/lugares/ocupacion.js", "/modules/lugares/panel.js", "/modules/auditoria/respaldos.js", "/modules/auditoria/auditoria.js", "/modules/control/historial.js", "/modules/control/accesos.js"];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||e.request.url.includes('/api/'))return;e.respondWith(fetch(e.request).then(r=>{const c=r.clone();caches.open(CACHE).then(x=>x.put(e.request,c));return r}).catch(()=>caches.match(e.request)));});
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('parkia-')||k.startsWith('nexo-park-')).filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==location.origin||u.pathname.startsWith('/api/'))return;e.respondWith(fetch(e.request).then(r=>{if(r.ok){const clone=r.clone();caches.open(CACHE).then(c=>c.put(e.request,clone));}return r}).catch(async()=>await caches.match(e.request)||new Response('Sin conexión. Conéctese a la red del campus.',{status:503})));});

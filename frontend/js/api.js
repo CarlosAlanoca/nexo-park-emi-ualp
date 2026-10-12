@@ -65,6 +65,7 @@ export function aviso(m) {
   if (old) old.remove();
   const e = document.createElement('div');
   e.className = 'toast';
+  e.setAttribute('role','status');e.setAttribute('aria-live','polite');
   e.textContent = m;
   document.body.append(e);
   setTimeout(() => e.remove(), 3200);
@@ -72,5 +73,5 @@ export function aviso(m) {
 
 export function fecha(v) {
   if (!v) return '-';
-  return new Intl.DateTimeFormat('es-BO', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(v));
+  return new Intl.DateTimeFormat('es-BO', { dateStyle: 'short', timeStyle: 'short', timeZone:'America/La_Paz' }).format(new Date(v));
 }

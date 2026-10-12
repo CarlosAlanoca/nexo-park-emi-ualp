@@ -1,0 +1,49 @@
+{
+  "entorno": "API real con PostgreSQL compatible PGlite, sin cámaras físicas",
+  "resultados": [
+    {
+      "prueba": "API sin sesión devuelve 401",
+      "resultado": "APROBADA"
+    },
+    {
+      "prueba": "Perfil director: sesión, permisos y revocación",
+      "resultado": "APROBADA"
+    },
+    {
+      "prueba": "Perfil operaciones: sesión, permisos y revocación",
+      "resultado": "APROBADA"
+    },
+    {
+      "prueba": "Perfil guardia: sesión, permisos y revocación",
+      "resultado": "APROBADA"
+    },
+    {
+      "prueba": "Perfil soporte: sesión, permisos y revocación",
+      "resultado": "APROBADA"
+    },
+    {
+      "prueba": "Perfil rrhh: sesión, permisos y revocación",
+      "resultado": "APROBADA"
+    },
+    {
+      "prueba": "Perfil estudiante: sesión, permisos y revocación",
+      "resultado": "APROBADA"
+    },
+    {
+      "prueba": "Perfil docente: sesión, permisos y revocación",
+      "resultado": "APROBADA"
+    },
+    {
+      "prueba": "Alta de docente, duplicado y rechazo de autoridad como propietario",
+      "resultado": "APROBADA"
+    },
+    {
+      "prueba": "Exactamente siete roles activos",
+      "resultado": "APROBADA"
+    },
+    {
+      "prueba": "Fechas inválidas rechazadas y PDF auténtico generado",
+      "resultado": "APROBADA"
+    }
+  ]
+}

@@ -1,35 +1,15 @@
 import {iniciarVerificadorAlertas} from './modules/alertas/alertas.worker.js';
-import { app } from './app.js';
-import { env } from './config/env.js';
-import { query } from './config/db.js';
-import { asegurarEstructuraAutenticacion, asegurarUsuariosDemo } from './modules/autenticacion/bootstrap.service.js';
-
-async function iniciar() {
-  try {
-    await query('SELECT 1');
-    await asegurarEstructuraAutenticacion();
-    await query(`ALTER TABLE vehiculos ADD COLUMN IF NOT EXISTS propietario_usuario_id UUID REFERENCES usuarios(id), ADD COLUMN IF NOT EXISTS foto_vehiculo TEXT, ADD COLUMN IF NOT EXISTS foto_placa TEXT`);
-    await query(`ALTER TABLE eventos_acceso ADD COLUMN IF NOT EXISTS evidencia_tipo VARCHAR(30) DEFAULT 'SIN_EVIDENCIA'`);
-    await query(`ALTER TABLE alertas ADD COLUMN IF NOT EXISTS clave_incidente VARCHAR(160)`);
-    await query(`CREATE UNIQUE INDEX IF NOT EXISTS ux_alertas_incidente_activo ON alertas(clave_incidente) WHERE clave_incidente IS NOT NULL AND estado <> 'CERRADA'`);
-    const fs=await import('node:fs/promises');
-    await query(await fs.readFile(new URL('../sql/05_auditoria_v15.sql', import.meta.url),'utf8'));
-    await query(await fs.readFile(new URL('../sql/06_mapeo_real_v17.sql', import.meta.url),'utf8'));
-    await query(await fs.readFile(new URL('../sql/07_mapa_rectangulos_v26.sql', import.meta.url),'utf8'));
-    await query(`CREATE TABLE IF NOT EXISTS migraciones_parkia(version VARCHAR(30) PRIMARY KEY,aplicada_en TIMESTAMPTZ DEFAULT NOW())`);
-    const aplicada = await query(`SELECT 1 FROM migraciones_parkia WHERE version='V29_CASOS_USO'`);
-    if(!aplicada.rowCount){
-      await query(await fs.readFile(new URL('../sql/08_casos_uso_v29.sql', import.meta.url),'utf8'));
-      await query(`INSERT INTO migraciones_parkia(version) VALUES ('V29_CASOS_USO') ON CONFLICT DO NOTHING`);
-    }
-    await asegurarUsuariosDemo();
-    await query(`INSERT INTO perfiles_propietarios(usuario_id,tipo) SELECT u.id,CASE WHEN UPPER(COALESCE(u.area_institucional,'')) LIKE '%DOCENTE%' THEN 'DOCENTE' ELSE 'ESTUDIANTE' END FROM usuarios u JOIN roles r ON r.id=u.rol_id WHERE r.codigo='PROPIETARIO' ON CONFLICT(usuario_id) DO NOTHING`);
-    iniciarVerificadorAlertas();
-    app.listen(env.port, () => console.log(`PARKIA EMI UALP disponible en http://localhost:${env.port}`));
-  } catch (error) {
-    console.error('No se pudo iniciar PARKIA:', error);
-    process.exit(1);
-  }
+import {app} from './app.js';
+import {env} from './config/env.js';
+import {query} from './config/db.js';
+import {migrate} from './config/migrate.js';
+import {asegurarEstructuraAutenticacion,asegurarUsuariosDemo} from './core/autenticacion/bootstrap.service.js';
+async function iniciar(){
+ try{
+  if(env.nodeEnv==='production'&&[env.jwtSecret,env.captchaSecret].some(x=>x.length<32||/change|cambiar|dev-secret/i.test(x)))throw Error('Configure JWT_SECRET y CAPTCHA_SECRET independientes de al menos 32 caracteres.');
+  await query('SELECT 1');await migrate();await asegurarEstructuraAutenticacion();await asegurarUsuariosDemo();
+  await query(`INSERT INTO perfiles_propietarios(usuario_id,tipo) SELECT u.id,CASE WHEN UPPER(COALESCE(u.area_institucional,'')) LIKE '%DOCENTE%' THEN 'DOCENTE' ELSE 'ESTUDIANTE' END FROM usuarios u JOIN roles r ON r.id=u.rol_id WHERE r.codigo='PROPIETARIO' ON CONFLICT(usuario_id) DO NOTHING`);
+  iniciarVerificadorAlertas();app.listen(env.port,()=>console.log(`NEXO PARK EMI UALP en http://localhost:${env.port}`));
+ }catch(e){console.error('No se pudo iniciar NEXO PARK:',e);process.exit(1)}
 }
-
 iniciar();

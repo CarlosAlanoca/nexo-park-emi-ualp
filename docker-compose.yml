@@ -24,10 +24,11 @@ services:
       dockerfile: Dockerfile
     environment:
       PORT: 4000
-      NODE_ENV: production
+      NODE_ENV: ${NODE_ENV:-development}
+      SEED_DEMO: ${SEED_DEMO:-true}
       DATABASE_URL: postgresql://parkia:parkia2026@db:5432/parkia_emi
-      JWT_SECRET: CAMBIAR_ESTA_CLAVE_EN_PRODUCCION_2026
-      CAPTCHA_SECRET: CAMBIAR_CAPTCHA_SECRET_2026
+      JWT_SECRET: ${JWT_SECRET:-desarrollo-local-nexo-no-usar-en-produccion}
+      CAPTCHA_SECRET: ${CAPTCHA_SECRET:-captcha-local-nexo-no-usar-en-produccion}
       CORS_ORIGIN: http://localhost:4000
       ALLOW_BACKUP_COMMANDS: "false"
     ports:

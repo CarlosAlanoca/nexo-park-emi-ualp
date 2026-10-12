@@ -1,12 +1,15 @@
 {
-  "name": "parkia-emi-ualp",
-  "version": "13.0.0",
+  "name": "nexo-park-emi-ualp",
+  "version": "30.0.0",
   "private": true,
-  "description": "PARKIA EMI UALP V13: navegación corregida e historial trazable",
+  "description": "NEXO PARK EMI UALP — nueve módulos y siete actores",
   "scripts": {
     "start": "npm --prefix backend start",
     "dev": "npm --prefix backend run dev",
     "install:all": "npm --prefix backend install",
-    "db:schema": "psql \"$DATABASE_URL\" -f backend/sql/01_schema.sql -f backend/sql/02_seed.sql -f backend/sql/03_views_functions.sql"
+    "db:schema": "psql \"$DATABASE_URL\" -f backend/sql/01_schema.sql -f backend/sql/02_seed.sql -f backend/sql/03_views_functions.sql",
+    "test": "node tests/structure.mjs",
+    "test:integration": "node tests/integration.mjs",
+    "admin:create": "npm --prefix backend run admin:create"
   }
 }

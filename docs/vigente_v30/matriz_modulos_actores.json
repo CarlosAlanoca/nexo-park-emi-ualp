@@ -1,0 +1,299 @@
+{
+  "modules": [
+    {
+      "id": "usuarios",
+      "name": "Gestión de usuarios",
+      "actors": "Administrador, Soporte y Recursos Humanos",
+      "scope": "Crear y mantener cuentas institucionales; asignar roles y zonas; gestionar estados. La asignación de privilegios y las cuentas administradoras requieren usuarios.permisos.",
+      "flow": [
+        "Abrir Gestión de usuarios y consultar cuentas, roles y permisos disponibles.",
+        "Registrar nombre, usuario, correo, área, rol y contraseña.",
+        "El servidor valida datos, unicidad del usuario y permisos para asignar el rol.",
+        "Guardar cambios y registrar la operación en auditoría.",
+        "Al cambiar contraseña, rol o estado, revocar sesiones afectadas."
+      ],
+      "exceptions": [
+        "Usuario duplicado: rechazar sin crear otra cuenta.",
+        "Sin permiso de privilegios: impedir asignar o modificar ADMIN.",
+        "No deshabilitar la propia cuenta ni cambiar el propio rol."
+      ],
+      "tables": "usuarios, roles, permisos, roles_permisos, sesiones_autenticacion",
+      "api": "/api/usuarios"
+    },
+    {
+      "id": "reportes",
+      "name": "Informes y reportes",
+      "actors": "Administrador, Operadores, Recursos Humanos, Director y Guardia",
+      "scope": "Consolidar flujo de accesos, validaciones y cambios de ocupación por fechas y zona; consultar disponibilidad actual; previsualizar y descargar PDF y exportar CSV.",
+      "flow": [
+        "Elegir fechas y, opcionalmente, una zona.",
+        "Generar indicadores y tablas del período.",
+        "Solicitar Vista previa PDF.",
+        "El servidor comprueba sesión, permiso y filtros y genera el documento.",
+        "La interfaz presenta el PDF y habilita Descargar PDF."
+      ],
+      "exceptions": [
+        "Rechazar fechas inexistentes, período invertido o intervalo superior a 366 días.",
+        "Mostrar estados vacíos cuando no existen registros.",
+        "Un cambio de filtros invalida la vista previa anterior."
+      ],
+      "tables": "eventos_acceso, eventos_ocupacion, zonas_parqueo, plazas_parqueo, vehiculos, usuarios",
+      "api": "/api/reportes"
+    },
+    {
+      "id": "propietarios",
+      "name": "Registro de propietarios",
+      "actors": "Administrador, Operadores, Recursos Humanos; Soporte consulta",
+      "scope": "Registrar estudiantes y docentes como propietarios. Este perfil no concede atribuciones de autoridad ni de personal administrativo.",
+      "flow": [
+        "Consultar propietarios y zonas habilitadas.",
+        "Registrar nombre, usuario, tipo ESTUDIANTE o DOCENTE, zona y contraseña.",
+        "Crear la cuenta PROPIETARIO y su perfil en una transacción.",
+        "Actualizar datos o deshabilitar la cuenta cuando corresponda.",
+        "Mantener la relación del propietario con sus vehículos."
+      ],
+      "exceptions": [
+        "Rechazar tipos distintos de ESTUDIANTE y DOCENTE.",
+        "Rechazar una zona no habilitada para propietarios.",
+        "Rechazar usuarios repetidos."
+      ],
+      "tables": "usuarios, perfiles_propietarios, roles, zonas_parqueo, vehiculos",
+      "api": "/api/propietarios"
+    },
+    {
+      "id": "vehiculos",
+      "name": "Registro de vehículos",
+      "actors": "Administrador y Operadores gestionan; Guardia y Recursos Humanos consultan",
+      "scope": "Asociar vehículos a propietarios habilitados, conservar fotografías del vehículo y placa y administrar autorizaciones temporales, permanentes o excepcionales.",
+      "flow": [
+        "Seleccionar un propietario activo.",
+        "Completar placa, tipo, marca, modelo, color y categoría.",
+        "Adjuntar fotografías del vehículo y la placa.",
+        "Guardar y registrar la operación.",
+        "Crear una autorización con vigencia y motivo cuando corresponda."
+      ],
+      "exceptions": [
+        "Normalizar la placa a mayúsculas sin espacios ni guiones.",
+        "Rechazar vehículos sin propietario activo o fotografías válidas.",
+        "Impedir autorizaciones activas con períodos superpuestos."
+      ],
+      "tables": "vehiculos, usuarios, autorizaciones_vehiculares",
+      "api": "/api/vehiculos"
+    },
+    {
+      "id": "lugares",
+      "name": "Gestión de lugares y clasificación",
+      "actors": "Administrador, Operadores y Soporte gestionan; Director y Guardia consultan",
+      "scope": "Agrupar supervisión, zonas, plazas, dispositivos y visión artificial. Las pestañas conservan la navegación del módulo al cambiar de función.",
+      "flow": [
+        "Abrir el panel y consultar disponibilidad por zona.",
+        "Seleccionar un sector para inspeccionar plazas, cámaras y alertas.",
+        "Cambiar a Parqueos y plazas para mantener la clasificación y el mapa.",
+        "Usar Visión artificial para configurar y analizar regiones de interés.",
+        "Registrar cambios de ocupación con origen y evidencia."
+      ],
+      "exceptions": [
+        "Mostrar SIN_DATOS cuando no existe evidencia suficiente.",
+        "Mantener FUERA_SERVICIO separado de LIBRE.",
+        "Restringir cambios a permisos de gestión aunque la consulta esté habilitada."
+      ],
+      "tables": "zonas_parqueo, plazas_parqueo, dispositivos, eventos_ocupacion, bitacora_dispositivos",
+      "api": "/api/panel, /api/parqueos, /api/ocupacion"
+    },
+    {
+      "id": "control",
+      "name": "Control de ingreso y salida",
+      "actors": "Administrador, Operadores y Guardia operan; Soporte, RRHH y Director consultan historial; Propietario consulta sus movimientos",
+      "scope": "Agrupar registro de ingreso y salida, lectura de placa, revisión manual e historial trazable. El propietario dispone de una consulta aislada de sus vehículos.",
+      "flow": [
+        "Consultar eventos y su resultado de validación.",
+        "Capturar una imagen o utilizar el simulador explícitamente identificado.",
+        "Procesar OCR y contrastar placa y autorización.",
+        "Revisar lecturas inciertas antes de una validación manual autorizada.",
+        "Consultar historial con filtros; un propietario solo recibe sus propios movimientos."
+      ],
+      "exceptions": [
+        "Lecturas con confianza inferior a 85 requieren revisión.",
+        "El simulador conserva origen SIMULADOR; no representa una cámara instalada.",
+        "La consulta propia obtiene el usuario de la sesión y no permite seleccionar otra identidad."
+      ],
+      "tables": "eventos_acceso, resultados_reconocimiento_placa, vehiculos, autorizaciones_vehiculares, dispositivos",
+      "api": "/api/accesos, /api/historial, /api/estudiante/mis-accesos"
+    },
+    {
+      "id": "alertas",
+      "name": "Alertas y notificaciones",
+      "actors": "Administrador, Operadores, Soporte y Guardia gestionan; Director consulta",
+      "scope": "Identificar incidentes operativos y registrar su atención, asignación y cierre. La información se consulta dentro del sistema.",
+      "flow": [
+        "Consultar alertas por estado y severidad.",
+        "Abrir la información del incidente.",
+        "Asignar o atender según los permisos.",
+        "Registrar una acción y comentario.",
+        "Cerrar el incidente conservando su historial."
+      ],
+      "exceptions": [
+        "Evitar duplicar incidentes activos mediante clave_incidente.",
+        "Conservar quién atendió o cerró y cuándo.",
+        "No confundir notificaciones internas con envío de correo, SMS o push externo."
+      ],
+      "tables": "alertas, acciones_alerta, dispositivos, zonas_parqueo, plazas_parqueo",
+      "api": "/api/alertas"
+    },
+    {
+      "id": "auditoria",
+      "name": "Auditoría y control",
+      "actors": "Administrador y Soporte; Director consulta auditoría",
+      "scope": "Revisar acciones trazables y administrar la continuidad. Agrupa auditoría y respaldos dentro del mismo módulo.",
+      "flow": [
+        "Consultar eventos con usuario, fecha, acción y entidad.",
+        "Filtrar o inspeccionar registros de actividad.",
+        "Cambiar a Respaldo y continuidad si existe permiso.",
+        "Solicitar el respaldo según configuración del servidor.",
+        "Revisar estado y mensaje de ejecución."
+      ],
+      "exceptions": [
+        "Los comandos de respaldo están deshabilitados por defecto.",
+        "La habilitación exige herramientas y permisos operativos del servidor.",
+        "La restauración debe ensayarse en un entorno separado antes de un uso institucional."
+      ],
+      "tables": "auditoria, respaldos, bitacora_dispositivos, usuarios",
+      "api": "/api/auditoria, /api/respaldos"
+    },
+    {
+      "id": "movil",
+      "name": "Componente móvil",
+      "actors": "Los siete actores",
+      "scope": "Presentar una experiencia adaptable. Los propietarios consultan la zona asignada; los demás actores disponen de accesos rápidos a funciones autorizadas.",
+      "flow": [
+        "Ingresar desde un navegador de escritorio o móvil.",
+        "Obtener el rol y los permisos desde la sesión.",
+        "Mostrar disponibilidad al propietario o accesos de trabajo al personal.",
+        "Utilizar el menú lateral y la búsqueda de módulos.",
+        "Mostrar aviso de desconexión y recuperar datos al volver a la red."
+      ],
+      "exceptions": [
+        "La consulta no reserva una plaza.",
+        "El caché excluye las respuestas de API.",
+        "La instalación PWA depende del navegador y de HTTPS o localhost."
+      ],
+      "tables": "usuarios, zonas_parqueo, plazas_parqueo, vehiculos, eventos_acceso",
+      "api": "/api/movil/contexto, /api/estudiante"
+    }
+  ],
+  "roles": [
+    "ADMIN",
+    "OPERADORES",
+    "SOPORTE",
+    "RRHH",
+    "DIRECTOR",
+    "GUARDIA",
+    "PROPIETARIO"
+  ],
+  "matrix": [
+    [
+      "G",
+      "—",
+      "G",
+      "G",
+      "—",
+      "—",
+      "—"
+    ],
+    [
+      "G",
+      "G",
+      "—",
+      "G",
+      "G",
+      "G",
+      "—"
+    ],
+    [
+      "G",
+      "G",
+      "C",
+      "G",
+      "—",
+      "—",
+      "—"
+    ],
+    [
+      "G",
+      "G",
+      "—",
+      "C",
+      "—",
+      "C",
+      "—"
+    ],
+    [
+      "G",
+      "G",
+      "G",
+      "—",
+      "C",
+      "C",
+      "—"
+    ],
+    [
+      "G",
+      "G",
+      "H",
+      "H",
+      "H",
+      "G",
+      "P"
+    ],
+    [
+      "G",
+      "G",
+      "G",
+      "—",
+      "C",
+      "G",
+      "—"
+    ],
+    [
+      "G",
+      "—",
+      "G",
+      "—",
+      "C",
+      "—",
+      "—"
+    ],
+    [
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A",
+      "A"
+    ]
+  ],
+  "purposes": {
+    "acciones_alerta": "Historial de atención de incidentes.",
+    "alertas": "Incidentes con severidad, estado y vínculos operativos.",
+    "auditoria": "Registro trazable de acciones realizadas.",
+    "autorizaciones_vehiculares": "Vigencia y estado del permiso de un vehículo.",
+    "bitacora_dispositivos": "Cambios e incidentes de dispositivos.",
+    "configuracion_sistema": "Parámetros del sistema y responsable de modificación.",
+    "dispositivos": "Cámaras y componentes de infraestructura.",
+    "eventos_acceso": "Ingresos y salidas con evidencia y resultado.",
+    "eventos_ocupacion": "Cambios de disponibilidad de plazas.",
+    "migraciones_parkia": "Versiones aplicadas del esquema y fecha de ejecución.",
+    "perfiles_propietarios": "Tipo estudiante o docente de una cuenta propietaria.",
+    "permisos": "Catálogo de privilegios operativos.",
+    "plazas_parqueo": "Plazas individuales, estado y región de interés.",
+    "respaldos": "Solicitudes y resultado de respaldo o restauración.",
+    "resultados_reconocimiento_placa": "Salida OCR y revisión de placa asociada al acceso.",
+    "roles": "Siete perfiles activos y roles históricos desactivados.",
+    "roles_permisos": "Asociación muchos a muchos entre rol y permiso.",
+    "sesiones_autenticacion": "Sesiones revocables con fecha de expiración.",
+    "usuarios": "Identidad y habilitación de cuentas.",
+    "vehiculos": "Registro vehicular y vínculo con propietario.",
+    "zonas_parqueo": "Sectores del campus y su clasificación."
+  }
+}

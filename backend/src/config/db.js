@@ -4,7 +4,8 @@ const { Pool } = pg;
 
 export const pool = new Pool({
   connectionString: env.databaseUrl,
-  max: 12,
+  max: Number(process.env.DB_POOL_MAX || 12),
+  options: '-c timezone=America/La_Paz',
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000
 });

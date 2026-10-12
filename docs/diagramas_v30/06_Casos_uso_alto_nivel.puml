@@ -1,0 +1,65 @@
+@startuml
+left to right direction
+skinparam monochrome true
+actor "Administrador" as A0
+actor "Operadores" as A1
+actor "Soporte" as A2
+actor "Recursos Humanos" as A3
+actor "Director" as A4
+actor "Guardia" as A5
+actor "Propietario" as A6
+rectangle "NEXO PARK EMI UALP" {
+usecase "Gestión de usuarios" as M0
+usecase "Informes y reportes" as M1
+usecase "Registro de propietarios" as M2
+usecase "Registro de vehículos" as M3
+usecase "Gestión de lugares y clasificación" as M4
+usecase "Control de ingreso y salida" as M5
+usecase "Alertas y notificaciones" as M6
+usecase "Auditoría y control" as M7
+usecase "Componente móvil" as M8
+}
+A0 -- M0
+A0 -- M1
+A0 -- M2
+A0 -- M3
+A0 -- M4
+A0 -- M5
+A0 -- M6
+A0 -- M7
+A0 -- M8
+A1 -- M1
+A1 -- M2
+A1 -- M3
+A1 -- M4
+A1 -- M5
+A1 -- M6
+A1 -- M8
+A2 -- M0
+A2 -- M2
+A2 -- M4
+A2 -- M5
+A2 -- M6
+A2 -- M7
+A2 -- M8
+A3 -- M0
+A3 -- M1
+A3 -- M2
+A3 -- M3
+A3 -- M5
+A3 -- M8
+A4 -- M1
+A4 -- M4
+A4 -- M5
+A4 -- M6
+A4 -- M7
+A4 -- M8
+A5 -- M1
+A5 -- M3
+A5 -- M4
+A5 -- M5
+A5 -- M6
+A5 -- M8
+A6 -- M5
+A6 -- M8
+@enduml

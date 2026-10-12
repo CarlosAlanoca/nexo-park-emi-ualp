@@ -1,92 +1,77 @@
-# PARKIA EMI UALP — V15 Auditoría, respaldo y continuidad
+# NEXO PARK · EMI UALP · V30
 
-Versión acumulativa sobre V14. Refuerza auditoría, seguridad y continuidad institucional.
+Evolución de PARKIA V29. Sistema de parqueos con **9 módulos y 7 actores**, frontend y backend reorganizados por módulo. Incluye portal EMI, acceso, consulta móvil, gestión operativa, PDF con vista previa y documentación actualizada.
 
-- RF-46: Auditoría de acciones con filtros por fecha, usuario y acción.
-- RF-47: Seguimiento automático de cambios en estado de dispositivos.
-- RF-48: Solicitudes de respaldo y restauración, transiciones y evidencia documental.
-- RF-49: Historial de intentos fallidos y denegaciones por permiso.
-- RNF-26: Acceso controlado por permisos en backend.
-- RNF-27: Procedimiento documentado de restauración en laboratorio; pendiente de validación en ambiente real.
+## Empezar en Windows, Linux o macOS
 
-Lea `docs/REQUISITOS_MODULO_12_V15.md`, `docs/PLAN_RESTAURACION_Y_PRUEBAS_V15.md` y `docs/ACTUALIZAR_GITHUB_V15.md`.
+1. Instalar Docker con Compose y tener el motor en ejecución.
+2. Extraer todo el ZIP. Abrir una terminal en esta carpeta.
+3. Ejecutar `docker compose up --build`.
+4. Abrir **http://localhost:4000**.
+5. Para detener, `docker compose down`. No agregar `-v` si quiere conservar la base.
 
-**No confundir solicitud registrada o cierre administrativo con ejecución de una copia/recuperación real.**
+El Compose es una configuración de **demostración local**, con `SEED_DEMO=true` por defecto. No exponerla a Internet como configuración productiva.
 
+| Usuario | Contraseña de demostración | Actor |
+|---|---|---|
+| admin | PARKIA2026!Admin | Administrador |
+| director | PARKIA2026!Dir | Director |
+| operaciones | PARKIA2026!Ops | Operadores |
+| guardia | PARKIA2026!Seg | Guardia |
+| soporte | PARKIA2026!Tic | Soporte |
+| rrhh | PARKIA2026!RRHH | Recursos Humanos |
+| estudiante | PARKIA2026!Est | Propietario estudiante |
+| docente | PARKIA2026!Doc | Propietario docente |
 
-## V17 · Mapeo real del campus
-- Estudiantes: parte trasera.
-- Autoridades: frente izquierdo.
-- Administrativo: frente derecho.
-- Cámaras IA de ocupación asociadas por zona y cámara LPR en el ingreso.
+Los dos propietarios son el mismo actor. Las cuentas demo solo se crean si no existen; sus contraseñas no se reemplazan al reiniciar.
 
+## Instalación sin Docker
 
-## V18 · Mapa interactivo sobre imagen
-- Las plazas se muestran sobre la imagen del campus.
-- Cada plaza indica si está disponible, ocupada, fuera de servicio o sin datos.
-- Se reforzó el valor visual del módulo de zonas, plazas y cámaras.
+Requisitos: Node.js 22 o posterior, PostgreSQL 16 o posterior, Tesseract con idioma `eng` para OCR.
 
+1. Crear base y usuario de PostgreSQL.
+2. Copiar `backend/.env.example` como `backend/.env` y ajustar `DATABASE_URL`.
+3. Ejecutar desde la raíz: `npm run install:all`.
+4. Inicializar una base nueva con `backend/sql/01_schema.sql`, `02_seed.sql` y `03_views_functions.sql`, en ese orden. Ejemplo: `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f backend/sql/01_schema.sql -f backend/sql/02_seed.sql -f backend/sql/03_views_functions.sql`.
+5. Ejecutar `npm start`. El proceso arranca desde backend y aplica migraciones pendientes 04–09 en transacción.
 
-## V19 · Presentación limpia por sectores
-- Eliminado el amontonamiento visual del estado agrupado.
-- Presentación ordenada por sectores institucionales.
-- Sin usar la imagen con líneas de referencia.
-- Vista más estética y profesional para parqueos y ocupación.
+Alternativa para base NUEVA: ejecutar `backend/sql/NEXO_PARK_BD_COMPLETA.sql`. No combinar ambos caminos ni ejecutar semillas sobre una base operativa.
 
+## Actualización desde V29
 
-## V20 · Imagen del parqueo con tarjetas superpuestas
-- Cada sector muestra la imagen real del parqueo.
-- Las plazas aparecen encima de la imagen como tarjetas/cuadrados.
-- Cada tarjeta indica el estado de la plaza.
+- Respaldar la base y ensayar la restauración antes del reemplazo.
+- Conservar el `.env` real y el volumen PostgreSQL existente.
+- Reemplazar el código con esta entrega y ejecutar `npm ci` en backend.
+- Reiniciar. V30 reconoce la marca `V29_CASOS_USO` y no vuelve a aplicar mapas antiguos.
+- Si existen usuarios que solo difieren por mayúsculas, la migración detiene el arranque para resolver el conflicto sin borrar datos.
+- Recargar el navegador. El service worker elimina los cachés de versiones anteriores.
 
+## Organización
 
-## V21 · Overlays elegantes
-- La imagen del parqueo se mantiene visible.
-- Las plazas continúan sobre la imagen, pero con marcadores más pequeños y elegantes.
-- Mejor equilibrio visual y presentación más premium.
+Las carpetas `frontend/modules` y `backend/src/modules` contienen exactamente:
 
+`usuarios`, `reportes`, `propietarios`, `vehiculos`, `lugares`, `control`, `alertas`, `auditoria`, `movil`.
 
-## V22 · Pro final
-- La imagen del parqueo se redujo visualmente para un resultado más elegante.
-- Se mantiene la superposición de plazas con un tamaño equilibrado.
-- Mejor composición general de la interfaz.
+Autenticación vive en `backend/src/core/autenticacion`; sesión y navegación en `frontend/js`; composición de pestañas en `frontend/shared`. Las rutas API y nombres de tablas históricos se conservan por compatibilidad.
 
+Documentos actuales: **docs/vigente_v30**. Diagramas: **docs/diagramas_v30**. Documentación previa de referencia: **docs/historico_v29**, no representa la versión vigente.
 
-## V23 · Imagen clara y plazas referenciadas
-- Se aclararon las imágenes de parqueo.
-- Se reposicionaron las plazas tomando como referencia las líneas indicadas por el usuario.
-- Se mantiene una presentación profesional y equilibrada.
+## Pruebas
 
+- `npm test`: verifica nueve carpetas en ambas capas e imports relativos.
+- `npm run test:integration`: contra una instalación DEMO activa en localhost:4000. Crea un propietario de prueba; ejecutar solo en base de pruebas. `TEST_URL` permite cambiar el destino.
+- `tests/resultados-integracion.json` documenta la corrida realizada con API real y PostgreSQL compatible PGlite.
 
-## V24 · Mapa general referenciado
-- Se añadió un mapa general del campus.
-- Las plazas se ubicaron sobre el mapa en reemplazo de las líneas de referencia.
-- Se mantiene el detalle por sector con imagen clara.
+Se verificaron navegación Chromium, autenticación, permisos, revocación y PDF. No se ejecutaron pruebas con cámaras/barreras físicas ni un despliegue Docker en este entorno. Las pruebas con datos de demo no acreditan precisión de visión artificial.
 
+## Producción
 
-## V25 · Posicionamiento metodológico de plazas
-- Las líneas de referencia ya no se muestran.
-- Los targets fueron reubicados sobre el mapa siguiendo la geometría de los ejes marcados por el usuario.
-- Se documentó la metodología de implantación para dar trazabilidad técnica al diseño.
+Configurar `NODE_ENV=production`, `SEED_DEMO=false`, `JWT_SECRET` y `CAPTCHA_SECRET` independientes de al menos 32 caracteres aleatorios, credenciales propias, HTTPS y CORS. No usar las contraseñas del Compose.
 
+Para crear el administrador inicial, ejecutar desde backend `npm run admin:create`, definiendo `ADMIN_USER`, `ADMIN_PASSWORD` (mínimo 12 caracteres) y opcionalmente `ADMIN_NAME` en el entorno. El script no sobrescribe una cuenta existente. Retirar la variable de contraseña después de usarla.
 
-## V26 · Croquis oficial con rectángulos
-- Se utiliza como base la imagen oficial con rectángulos enviada por el usuario.
-- Se incorporó el parqueo de estudiantes motocicleta como zona independiente.
-- El mapa maestro ahora refleja la distribución del croquis y amplía la cantidad de plazas para aproximarse mejor al terreno.
+La web registra solicitudes y evidencias de respaldo. Para ejecutar una copia real desde consola, usar `npm run backup:create` desde backend con `ALLOW_BACKUP_COMMANDS=true`; genera un dump y su SHA256 y registra el resultado. La restauración se realiza externamente sobre una base separada. Las copias con comandos externos están deshabilitadas por defecto. Instalar herramientas PostgreSQL y validar rutas/permisos antes de habilitarlas. El OCR requiere Tesseract; los eventos simulados están marcados como SIMULADOR. La disponibilidad no implica reserva.
 
+## Editar diagramas
 
-## V27 · Rectángulos reales del usuario
-- El mapa maestro usa la imagen exacta con rectángulos enviada por el usuario.
-- Las plazas se proyectan sobre esos mismos rectángulos, sin sustituirlos por targets distintos.
-- Se mantiene el detalle por sectores y el control de ocupación.
-
-
-## V28 · Interfaz limpia
-- Se eliminaron los comentarios y textos explicativos dentro del sistema.
-- El mapa usa la misma imagen con rectángulos ya dibujados.
-- El estado se aplica como realce suave, sin crear otros targets visuales.
-
-
-## PARKIA V29 - Diagrama de casos de uso consolidado
-Se ajustó la plataforma a nueve módulos visibles y siete perfiles institucionales. Se agregó el registro específico de propietarios (estudiantes y docentes), la vista previa autenticada de PDFs y la descarga formal en A4 con identidades EMI/PARKIA. Consulte `docs/ARQUITECTURA_V29.md`, `docs/MATRIZ_CASOS_USO_V29.json` y `docs/ACTUALIZAR_GITHUB_V29.md`.
+Abrir los archivos `.dia` con Dia. Incluyen objetos y conectores editables; SVG y PNG facilitan la consulta. Se validó el XML del formato; no se ejecutó la aplicación de escritorio Dia durante esta entrega.

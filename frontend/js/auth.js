@@ -24,7 +24,7 @@ function setLoading(loading) {
   userInput.readOnly = loading;
   passwordInput.readOnly = loading;
   captchaInput.readOnly = loading;
-  loginButtonText.textContent = loading ? 'VALIDANDO...' : 'INGRESAR AL SISTEMA';
+  loginButtonText.textContent = loading ? 'Validando acceso…' : 'Ingresar a NEXO PARK';
   loginSpinner.classList.toggle('hidden', !loading);
 }
 
