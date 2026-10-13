@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1250" height="1420" viewBox="0 0 1250 1420" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif">
+<title>DPR-1a Acceso por placa (UML Actividad)</title>
+<defs>
+  <marker id="arr-open" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+    <path d="M1,1 L11,6 L1,11" fill="none" stroke="#1f2933" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arr-fill" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+    <path d="M1,1 L11,6 L1,11 Z" fill="#1f2933" stroke="#1f2933" stroke-width="1.2" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arr-thin" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+    <path d="M2,2 L10,6 L2,10" fill="none" stroke="#1f2933" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arr-dep" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+    <path d="M1,1 L11,6 L1,11" fill="#ffffff" stroke="#1f2933" stroke-width="1.5" stroke-linejoin="round"/>
+  </marker>
+</defs>
+<g><text x="625" y="27" font-size="17" fill="#0b2545" font-weight="700" text-anchor="middle" xml:space="preserve">DPR-1a. Diagrama de actividad</text>
+<text x="625" y="49" font-size="17" fill="#0b2545" font-weight="700" text-anchor="middle" xml:space="preserve">UML — Acceso por placa</text></g>
+<g><text x="625" y="49" font-size="11.5" fill="#5b6b7a" font-weight="400" text-anchor="middle" font-style="italic" xml:space="preserve">Módulo 4 · RF-14 a RF-19 ·</text>
+<text x="625" y="63" font-size="11.5" fill="#5b6b7a" font-weight="400" text-anchor="middle" font-style="italic" xml:space="preserve">RNF-08 a RNF-10</text></g>
+<rect x="70" y="130" width="230" height="1160" fill="#ffffff" stroke="#1f2933" stroke-width="1.4"/>
+<g><text x="185" y="152" font-size="11" fill="#0c3f73" font-weight="700" text-anchor="middle" xml:space="preserve">Conductor / Vehículo</text></g>
+<line x1="70" y1="130" x2="70" y2="1290" stroke="#1f2933" stroke-width="1.4" stroke-linecap="round"/>
+<rect x="300" y="130" width="230" height="1160" fill="#ffffff" stroke="#1f2933" stroke-width="1.4"/>
+<g><text x="415" y="152" font-size="11" fill="#0c3f73" font-weight="700" text-anchor="middle" xml:space="preserve">Cámara LPR/OCR</text></g>
+<line x1="300" y1="130" x2="300" y2="1290" stroke="#1f2933" stroke-width="1.4" stroke-linecap="round"/>
+<rect x="530" y="130" width="420" height="1160" fill="#ffffff" stroke="#1f2933" stroke-width="1.4"/>
+<g><text x="740" y="152" font-size="11" fill="#0c3f73" font-weight="700" text-anchor="middle" xml:space="preserve">Sistema PARKIA</text></g>
+<line x1="530" y1="130" x2="530" y2="1290" stroke="#1f2933" stroke-width="1.4" stroke-linecap="round"/>
+<rect x="950" y="130" width="230" height="1160" fill="#ffffff" stroke="#1f2933" stroke-width="1.4"/>
+<g><text x="1065" y="152" font-size="11" fill="#0c3f73" font-weight="700" text-anchor="middle" xml:space="preserve">Personal de Guardia</text></g>
+<line x1="950" y1="130" x2="950" y2="1290" stroke="#1f2933" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="1180" y1="130" x2="1180" y2="1290" stroke="#1f2933" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="70" y1="130" x2="1180" y2="130" stroke="#1f2933" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="259.75" y1="201" x2="340.25" y2="229" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="415" y1="281" x2="415" y2="319" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="495.4761904761905" y1="371" x2="640" y2="417.6923076923077" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="687.5" y1="505" x2="659.8181818181819" y2="534" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<g><rect x="843.23" y="495.94" width="19.55" height="18.13" fill="#ffffff" stroke="none" stroke-width="1.4"/><g><text x="853" y="509" font-size="10.5" fill="#37474f" font-weight="500" text-anchor="middle" font-style="italic" xml:space="preserve">no</text></g></g>
+<line x1="725" y1="560" x2="975" y2="560" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="1065" y1="586" x2="1065" y2="624" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="740" y1="505" x2="740" y2="664" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<g><rect x="843.23" y="595.94" width="19.55" height="18.13" fill="#ffffff" stroke="none" stroke-width="1.4"/><g><text x="853" y="609" font-size="10.5" fill="#37474f" font-weight="500" text-anchor="middle" font-style="italic" xml:space="preserve">sí</text></g></g>
+<line x1="740" y1="716" x2="740" y2="745" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="840" y1="800" x2="975" y2="800" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<g><rect x="843.23" y="790.94" width="19.55" height="18.13" fill="#ffffff" stroke="none" stroke-width="1.4"/><g><text x="853" y="804" font-size="10.5" fill="#37474f" font-weight="500" text-anchor="middle" font-style="italic" xml:space="preserve">sí</text></g></g>
+<line x1="1065" y1="826" x2="1065" y2="899" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="1065" y1="951" x2="1065" y2="980" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="740" y1="855" x2="740" y2="899" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<g><rect x="843.23" y="853.44" width="19.55" height="18.13" fill="#ffffff" stroke="none" stroke-width="1.4"/><g><text x="853" y="866" font-size="10.5" fill="#37474f" font-weight="500" text-anchor="middle" font-style="italic" xml:space="preserve">no</text></g></g>
+<line x1="740" y1="951" x2="740" y2="980" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="693.1481481481482" y1="1090" x2="647.1481481481482" y2="1144" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<g><rect x="617.23" y="1093.44" width="19.55" height="18.13" fill="#ffffff" stroke="none" stroke-width="1.4"/><g><text x="627" y="1106" font-size="10.5" fill="#37474f" font-weight="500" text-anchor="middle" font-style="italic" xml:space="preserve">sí</text></g></g>
+<line x1="786.8518518518518" y1="1090" x2="832.8518518518518" y2="1144" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<g><rect x="843.23" y="1093.44" width="19.55" height="18.13" fill="#ffffff" stroke="none" stroke-width="1.4"/><g><text x="853" y="1106" font-size="10.5" fill="#37474f" font-weight="500" text-anchor="middle" font-style="italic" xml:space="preserve">no</text></g></g>
+<line x1="965" y1="1065.6818181818182" x2="709.7407407407408" y2="1144" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<g><rect x="1168.22" y="1093.44" width="19.55" height="18.13" fill="#ffffff" stroke="none" stroke-width="1.4"/><g><text x="1178" y="1106" font-size="10.5" fill="#37474f" font-weight="500" text-anchor="middle" font-style="italic" xml:space="preserve">sí</text></g></g>
+<line x1="979.4444444444445" y1="1090" x2="895.4444444444445" y2="1144" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<g><rect x="1181.22" y="1093.44" width="19.55" height="18.13" fill="#ffffff" stroke="none" stroke-width="1.4"/><g><text x="1191" y="1106" font-size="10.5" fill="#37474f" font-weight="500" text-anchor="middle" font-style="italic" xml:space="preserve">no</text></g></g>
+<line x1="656.4736842105264" y1="1196" x2="708.5263157894736" y2="1239" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="945" y1="1170" x2="975" y2="1170" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="976.0526315789474" y1="1196" x2="828.9473684210526" y2="1239" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<circle cx="185" cy="175" r="11" fill="#1f2933" stroke="#1f2933" stroke-width="1.4"/>
+<rect x="325" y="229" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="415" y="259" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Capturar la imagen de la placa</text></g>
+<rect x="325" y="319" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="415" y="342" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Reconocer la placa mediante</text>
+<text x="415" y="355" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">LPR/OCR</text></g>
+<path d="M740,395 L840,450 L740,505 L640,450 Z" fill="#fdf6e3" stroke="#1f2933" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><g><text x="740" y="453" font-size="9.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">¿Lectura de placa válida?</text></g>
+<rect x="545" y="534" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="635" y="557" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Denegar por fallo de lectura y</text>
+<text x="635" y="570" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">registrar el incidente</text></g>
+<rect x="650" y="664" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="740" y="687" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Verificar el nivel de confianza</text>
+<text x="740" y="700" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">de la lectura</text></g>
+<path d="M740,745 L840,800 L740,855 L640,800 Z" fill="#fdf6e3" stroke="#1f2933" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><g><text x="740" y="803" font-size="9.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">¿La lectura es incierta?</text></g>
+<rect x="650" y="899" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="740" y="922" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Normalizar y comparar con la</text>
+<text x="740" y="935" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">autorización vigente</text></g>
+<path d="M740,980 L840,1035 L740,1090 L640,1035 Z" fill="#fdf6e3" stroke="#1f2933" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><g><text x="740" y="1038" font-size="9.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">¿Autorización vigente?</text></g>
+<rect x="535" y="1144" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="625" y="1167" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Autorizar y registrar el evento</text>
+<text x="625" y="1180" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">de acceso</text></g>
+<rect x="765" y="1144" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="855" y="1167" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Denegar y registrar el evento</text>
+<text x="855" y="1180" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">de acceso</text></g>
+<rect x="975" y="774" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="1065" y="797" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Notificar la lectura incierta</text>
+<text x="1065" y="810" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">al guardia</text></g>
+<rect x="975" y="899" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="1065" y="929" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Validar la placa manualmente</text></g>
+<path d="M1065,980 L1165,1035 L1065,1090 L965,1035 Z" fill="#fdf6e3" stroke="#1f2933" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><g><text x="1065" y="1038" font-size="9.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">¿La placa está autorizada?</text></g>
+<rect x="975" y="534" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="1065" y="557" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Notificar el incidente al</text>
+<text x="1065" y="570" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">guardia</text></g>
+<rect x="975" y="1144" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="1065" y="1167" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Recibir alerta de acceso</text>
+<text x="1065" y="1180" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">denegado</text></g>
+<circle cx="1065" cy="650" r="11" fill="#ffffff" stroke="#1f2933" stroke-width="1.5"/><circle cx="1065" cy="650" r="4.95" fill="#1f2933" stroke="#1f2933" stroke-width="1.2"/>
+<circle cx="740" cy="1265" r="11" fill="#ffffff" stroke="#1f2933" stroke-width="1.5"/><circle cx="740" cy="1265" r="4.95" fill="#1f2933" stroke="#1f2933" stroke-width="1.2"/>
+<g><line x1="70" y1="1335" x2="96" y2="1335" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<g><text x="102" y="1339" font-size="10" fill="#37474f" font-weight="400" text-anchor="start" xml:space="preserve">Flujo de control</text></g>
+<line x1="217.6" y1="1335" x2="243.6" y2="1335" stroke="#1f2933" stroke-width="1.3" stroke-linecap="round"/>
+<g><text x="249.6" y="1326" font-size="10" fill="#37474f" font-weight="400" text-anchor="start" xml:space="preserve">RNF-09: lectura incierta →</text>
+<text x="249.6" y="1339" font-size="10" fill="#37474f" font-weight="400" text-anchor="start" xml:space="preserve">validación manual, nunca</text>
+<text x="249.6" y="1351" font-size="10" fill="#37474f" font-weight="400" text-anchor="start" xml:space="preserve">autorización automática</text></g></g>
+</svg>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1290" height="1520" viewBox="0 0 1290 1520" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif">
+<title>DPR-2a. Diagrama de actividad UML — Gestión de zonas, plazas y cámaras</title>
+<defs>
+  <marker id="arr-open" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+    <path d="M1,1 L11,6 L1,11" fill="none" stroke="#1f2933" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arr-fill" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+    <path d="M1,1 L11,6 L1,11 Z" fill="#1f2933" stroke="#1f2933" stroke-width="1.2" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arr-thin" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+    <path d="M2,2 L10,6 L2,10" fill="none" stroke="#1f2933" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arr-dep" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+    <path d="M1,1 L11,6 L1,11" fill="#ffffff" stroke="#1f2933" stroke-width="1.5" stroke-linejoin="round"/>
+  </marker>
+</defs>
+<g><text x="645" y="14" font-size="17" fill="#0b2545" font-weight="700" text-anchor="middle" xml:space="preserve">DPR-2a. Diagrama de actividad</text>
+<text x="645" y="36" font-size="17" fill="#0b2545" font-weight="700" text-anchor="middle" xml:space="preserve">UML — Gestión de zonas, plazas</text>
+<text x="645" y="58" font-size="17" fill="#0b2545" font-weight="700" text-anchor="middle" xml:space="preserve">y cámaras</text></g>
+<g><text x="645" y="47" font-size="11.5" fill="#5b6b7a" font-weight="400" text-anchor="middle" font-style="italic" xml:space="preserve">Módulo 5 · RF-20 a RF-24 ·</text>
+<text x="645" y="61" font-size="11.5" fill="#5b6b7a" font-weight="400" text-anchor="middle" font-style="italic" xml:space="preserve">RNF-11 · RNF-12</text></g>
+<rect x="60" y="130" width="220" height="1290" fill="#ffffff" stroke="#1f2933" stroke-width="1.2"/>
+<g><text x="170" y="152" font-size="10.5" fill="#0c3f73" font-weight="700" text-anchor="middle" xml:space="preserve">Administrador / TIC</text></g>
+<line x1="60" y1="130" x2="60" y2="1420" stroke="#1f2933" stroke-width="1.2" stroke-linecap="round"/>
+<rect x="280" y="130" width="520" height="1290" fill="#ffffff" stroke="#1f2933" stroke-width="1.2"/>
+<g><text x="540" y="152" font-size="10.5" fill="#0c3f73" font-weight="700" text-anchor="middle" xml:space="preserve">Sistema PARKIA</text></g>
+<line x1="280" y1="130" x2="280" y2="1420" stroke="#1f2933" stroke-width="1.2" stroke-linecap="round"/>
+<rect x="800" y="130" width="220" height="1290" fill="#ffffff" stroke="#1f2933" stroke-width="1.2"/>
+<g><text x="910" y="152" font-size="10.5" fill="#0c3f73" font-weight="700" text-anchor="middle" xml:space="preserve">Panel web y app móvil</text></g>
+<line x1="800" y1="130" x2="800" y2="1420" stroke="#1f2933" stroke-width="1.2" stroke-linecap="round"/>
+<rect x="1020" y="130" width="230" height="1290" fill="#ffffff" stroke="#1f2933" stroke-width="1.2"/>
+<g><text x="1135" y="152" font-size="10.5" fill="#0c3f73" font-weight="700" text-anchor="middle" xml:space="preserve">Sensor IoT de plaza</text></g>
+<line x1="1020" y1="130" x2="1020" y2="1420" stroke="#1f2933" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="1250" y1="130" x2="1250" y2="1420" stroke="#1f2933" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="249.3684210526316" y1="206" x2="380.63157894736844" y2="249" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="460" y1="301" x2="460" y2="335" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="560" y1="437.9166666666667" x2="645.7391304347826" y2="479" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="700" y1="531" x2="700" y2="564" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="460" y1="445" x2="460" y2="494" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="397.1666666666667" y1="546" x2="232.83333333333334" y2="614" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="241.8095238095238" y1="666" x2="388.1904761904762" y2="719" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="460" y1="771" x2="460" y2="800" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="385.8139534883721" y1="800" x2="205.06976744186045" y2="666" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="460" y1="910" x2="460" y2="949" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="1045" y1="879.8275862068965" x2="790" y2="950.1724137931035" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="610" y1="975" x2="550" y2="975" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="460" y1="1001" x2="460" y2="1035" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="560" y1="1140" x2="648" y2="1184" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="460" y1="1145" x2="460" y2="1184" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="550" y1="1232" x2="820" y2="1298" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<line x1="820" y1="1322" x2="550" y2="1328" stroke="#1f2933" stroke-width="1.2" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<g><rect x="565.23" y="438.44" width="19.55" height="18.13" fill="#ffffff" stroke="none" stroke-width="1.4"/><g><text x="575" y="451" font-size="10.5" fill="#37474f" font-weight="500" text-anchor="middle" font-style="italic" xml:space="preserve">no</text></g></g>
+<g><rect x="565.23" y="610.94" width="19.55" height="18.13" fill="#ffffff" stroke="none" stroke-width="1.4"/><g><text x="575" y="624" font-size="10.5" fill="#37474f" font-weight="500" text-anchor="middle" font-style="italic" xml:space="preserve">sí</text></g></g>
+<g><rect x="303.46" y="738.44" width="83.08" height="18.13" fill="#ffffff" stroke="none" stroke-width="1.4"/><g><text x="345" y="751" font-size="10.5" fill="#37474f" font-weight="500" text-anchor="middle" font-style="italic" xml:space="preserve">no · corregir</text></g></g>
+<g><rect x="565.23" y="905.94" width="19.55" height="18.13" fill="#ffffff" stroke="none" stroke-width="1.4"/><g><text x="575" y="919" font-size="10.5" fill="#37474f" font-weight="500" text-anchor="middle" font-style="italic" xml:space="preserve">sí</text></g></g>
+<g><rect x="565.23" y="1170.94" width="19.55" height="18.13" fill="#ffffff" stroke="none" stroke-width="1.4"/><g><text x="575" y="1184" font-size="10.5" fill="#37474f" font-weight="500" text-anchor="middle" font-style="italic" xml:space="preserve">no</text></g></g>
+<g><rect x="565.23" y="1140.94" width="19.55" height="18.13" fill="#ffffff" stroke="none" stroke-width="1.4"/><g><text x="575" y="1154" font-size="10.5" fill="#37474f" font-weight="500" text-anchor="middle" font-style="italic" xml:space="preserve">sí</text></g></g>
+<circle cx="170" cy="180" r="11" fill="#1f2933" stroke="#1f2933" stroke-width="1.4"/>
+<rect x="370" y="249" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="460" y="272" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Autenticar y autorizar al</text>
+<text x="460" y="285" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">usuario</text></g>
+<path d="M460,335 L560,390 L460,445 L360,390 Z" fill="#fdf6e3" stroke="#1f2933" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><g><text x="460" y="393" font-size="9.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">¿Acceso permitido?</text></g>
+<rect x="610" y="479" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="700" y="502" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Registrar el intento denegado</text>
+<text x="700" y="515" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">en la auditoría</text></g>
+<circle cx="700" cy="590" r="11" fill="#ffffff" stroke="#1f2933" stroke-width="1.5"/><circle cx="700" cy="590" r="4.95" fill="#1f2933" stroke="#1f2933" stroke-width="1.2"/>
+<rect x="370" y="494" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="460" y="517" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Presentar el catálogo de zonas,</text>
+<text x="460" y="530" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">plazas y cámaras</text></g>
+<rect x="80" y="614" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="170" y="637" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Seleccionar la entidad y la</text>
+<text x="170" y="650" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">operación</text></g>
+<rect x="370" y="719" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="460" y="742" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Registrar o actualizar zona,</text>
+<text x="460" y="755" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">plaza, cámara o tarifario</text></g>
+<path d="M460,800 L560,855 L460,910 L360,855 Z" fill="#fdf6e3" stroke="#1f2933" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><g><text x="460" y="858" font-size="9.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">¿Datos válidos y completos?</text></g>
+<rect x="370" y="949" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="460" y="972" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Registrar el cambio en la</text>
+<text x="460" y="985" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">bitácora de auditoría</text></g>
+<circle cx="1135" cy="855" r="11" fill="#1f2933" stroke="#1f2933" stroke-width="1.4"/>
+<rect x="610" y="949" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="700" y="972" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Actualizar el estado de</text>
+<text x="700" y="985" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">ocupación de la plaza</text></g>
+<path d="M460,1035 L560,1090 L460,1145 L360,1090 Z" fill="#fdf6e3" stroke="#1f2933" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><g><text x="460" y="1088" font-size="9.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">¿Afecta al tarifario o a la</text>
+<text x="460" y="1099" font-size="9.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">disponibilidad?</text></g>
+<circle cx="700" cy="1210" r="11" fill="#ffffff" stroke="#1f2933" stroke-width="1.5"/><circle cx="700" cy="1210" r="4.95" fill="#1f2933" stroke="#1f2933" stroke-width="1.2"/>
+<rect x="370" y="1184" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="460" y="1207" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Publicar la actualización al</text>
+<text x="460" y="1220" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">panel y a la app</text></g>
+<rect x="820" y="1294" width="180" height="52" fill="#eef4fb" stroke="#1f2933" stroke-width="1.3" rx="9" ry="9"/><g><text x="910" y="1317" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">Mostrar la disponibilidad o el</text>
+<text x="910" y="1330" font-size="10.5" fill="#1f2933" font-weight="400" text-anchor="middle" xml:space="preserve">tarifario vigente</text></g>
+<circle cx="460" cy="1330" r="11" fill="#ffffff" stroke="#1f2933" stroke-width="1.5"/><circle cx="460" cy="1330" r="4.95" fill="#1f2933" stroke="#1f2933" stroke-width="1.2"/>
+<g><line x1="60" y1="1482" x2="86" y2="1482" stroke="#1f2933" stroke-width="1.3" marker-end="url(#arr-fill)" stroke-linecap="round"/>
+<g><text x="92" y="1486" font-size="10" fill="#37474f" font-weight="400" text-anchor="start" xml:space="preserve">Flujo de control</text></g>
+<line x1="207.6" y1="1482" x2="233.6" y2="1482" stroke="#1f2933" stroke-width="1.3" stroke-linecap="round"/>
+<g><text x="239.6" y="1454" font-size="10" fill="#37474f" font-weight="400" text-anchor="start" xml:space="preserve">RNF-11: todo cambio de</text>
+<text x="239.6" y="1466" font-size="10" fill="#37474f" font-weight="400" text-anchor="start" xml:space="preserve">configuración queda auditado</text>
+<text x="239.6" y="1479" font-size="10" fill="#37474f" font-weight="400" text-anchor="start" xml:space="preserve">con usuario, fecha y valores</text>
+<text x="239.6" y="1492" font-size="10" fill="#37474f" font-weight="400" text-anchor="start" xml:space="preserve">previos. RNF-12: la</text>
+<text x="239.6" y="1505" font-size="10" fill="#37474f" font-weight="400" text-anchor="start" xml:space="preserve">disponibilidad se publica en</text>
+<text x="239.6" y="1518" font-size="10" fill="#37474f" font-weight="400" text-anchor="start" xml:space="preserve">tiempo real a panel y app.</text></g></g>
+</svg>
